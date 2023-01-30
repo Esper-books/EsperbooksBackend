@@ -2,6 +2,7 @@ var config = {};
 
 config.twitter = {};
 config.redis = {};
+config.mysql = {};
 config.web = {};
 config.code ={};
 
@@ -26,6 +27,12 @@ config.code.incomplete_parameter.description = "Incomplete parameter provided";
 config.code.duplicate_entry ={};
 config.code.duplicate_entry.code = 403;
 config.code.duplicate_entry.description = "duplicate entry provided";
+
+config.mysql.host = "54.158.121.204";
+config.mysql.user = "paypay";
+config.mysql.password = "password";
+config.mysql.database = "paypay";
+config.mysql.port = 3306;
 
 
 

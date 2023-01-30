@@ -1,10 +1,11 @@
 var mysql = require('mysql');
+const configs = require('../config/config');
 
 var con = mysql.createConnection({
-  host: "54.158.121.204",
-  user: "paypay",
-  password: "password",
-  database: "paypay"
+  host:  configs.mysql.host,
+  user: configs.mysql.user,
+  password: configs.mysql.password,
+  database: configs.mysql.database
 });
 
 con.connect(function(err) {
@@ -21,8 +22,17 @@ function fetch_user(username,password,callback){
 }
 
 
+function fetch_user_detail(username,password,callback){
+  con.query('SELECT * FROM user where username = ?', [username],function (err, result, fields) {
+    if (err) throw err;
+    //console.log(result);
+    callback(result[0]);
+  });
+}
+
+
 function insert_user(userParameter,callback){
-  con.query('INSERT INTO user (username, password, fullname,reference) VALUES (?,?,?,?)', [userParameter.username,userParameter.password,userParameter.fullname,userParameter.reference],function (err, result) {
+  con.query('INSERT INTO user (username, password, fullname,reference,status,amount) VALUES (?,?,?,?,?,?)', [userParameter.username,userParameter.password,userParameter.fullname,userParameter.reference,userParameter.status,userParameter.amount],function (err, result) {
     if (err) {
       callback(err)
       }else{
