@@ -32,7 +32,7 @@ function fetch_user_detail(username,password,callback){
 
 
 function insert_user(userParameter,callback){
-  con.query('INSERT INTO user (username, password, fullname,reference,status,amount) VALUES (?,?,?,?,?,?)', [userParameter.username,userParameter.password,userParameter.fullname,userParameter.reference,userParameter.status,userParameter.amount],function (err, result) {
+  con.query('INSERT INTO user (username, password, fullname,reference,status,amount,type) VALUES (?,?,?,?,?,?,?)', [userParameter.username,userParameter.password,userParameter.fullname,userParameter.reference,userParameter.status,userParameter.amount,userParameter.type],function (err, result) {
     if (err) {
       callback(err)
       }else{

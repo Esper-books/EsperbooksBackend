@@ -97,12 +97,13 @@ router.post('/create', jsonParser,function(req, res, next) {
         userParameter.password = req.body.password;
         userParameter.fullname = req.body.fullname;
         userParameter.reference = req.body.reference;
+        userParameter.type = req.body.type;
         userParameter.status = 'inactive';
         userParameter.amount = '5000000';
 
 
         transporter.sendMail({
-            from: 'devopsam@gmail.com',
+            from: 'info@paypay.ng',
             to: userParameter.username,
             subject: 'Pay Pay User account has successfully been created',
             text: userParameter.username + ': You have successfully created your Pay Pay Account.'
