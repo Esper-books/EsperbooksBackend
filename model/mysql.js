@@ -13,6 +13,16 @@ con.connect(function(err) {
   console.log("Connected!");
 });
 
+
+function fetch_user_detail(username,callback){
+  con.query('SELECT * FROM user where username = ?', [username],function (err, result, fields) {
+    if (err) throw err;
+    //console.log(result);
+    callback(result[0]);
+  });
+}
+
+
 function fetch_user(username,password,callback){
   con.query('SELECT * FROM user where username = ? and password = ?', [username,password],function (err, result, fields) {
     if (err) throw err;
@@ -21,14 +31,6 @@ function fetch_user(username,password,callback){
   });
 }
 
-
-function fetch_user_detail(username,password,callback){
-  con.query('SELECT * FROM user where username = ?', [username],function (err, result, fields) {
-    if (err) throw err;
-    //console.log(result);
-    callback(result[0]);
-  });
-}
 
 
 function insert_user(userParameter,callback){
@@ -43,9 +45,19 @@ function insert_user(userParameter,callback){
   });
 }
 
+function fetch_user_report(username,callback){
+  con.query('SELECT * FROM transaction where userid = ? order by id desc limit 0, 10', [username],function (err, result, fields) {
+    if (err) throw err;
+    console.log("asdsa",result);
+    callback(result);
+  });
+}
+
 
 
 module.exports = {
   fetch_user : fetch_user,
-  insert_user : insert_user
+  fetch_user_report,fetch_user_report,
+  insert_user : insert_user,
+  fetch_user_detail : fetch_user_detail
  }
