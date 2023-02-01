@@ -28,6 +28,10 @@ config.code.duplicate_entry ={};
 config.code.duplicate_entry.code = 403;
 config.code.duplicate_entry.description = "duplicate entry provided";
 
+config.code.authentication_error ={};
+config.code.authentication_error.code = 404;
+config.code.authentication_error.description = "authentication_error while generation jwt token";
+
 config.mysql.host = "54.158.121.204";
 config.mysql.user = "paypay";
 config.mysql.password = "password";

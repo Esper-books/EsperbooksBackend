@@ -9,6 +9,7 @@ const configs = require('../config/config');
 
 var bodyParser = require('body-parser')
 var mysql = require('../model/mysql');
+var api = require('../model/api');
 
 /* GET home page. */
 var jsonParser = bodyParser.json()
@@ -97,9 +98,11 @@ router.post('/create', jsonParser,function(req, res, next) {
         userParameter.password = req.body.password;
         userParameter.fullname = req.body.fullname;
         userParameter.reference = req.body.reference;
+        userParameter.phone = req.body.phone;
         userParameter.type = req.body.type;
         userParameter.status = 'inactive';
         userParameter.amount = '5000000';
+        userParameter.accountNumber = '';
 
 
         transporter.sendMail({
@@ -109,23 +112,37 @@ router.post('/create', jsonParser,function(req, res, next) {
             text: userParameter.username + ': You have successfully created your Pay Pay Account.'
         });
 
-    
-        mysql.insert_user(userParameter,function(response_callback){
-        console.log(response_callback);
-            if(!response_callback){
-                var code = configs.code.invalid_username;
-                return res.status(code.code).json(response.error_response(code.description,code.code))
-            }
+        api.create_wallet(userParameter.phone,userParameter.username, function(response_callback){ 
 
-            if(response_callback.code == "ER_DUP_ENTRY"){
-                var code = configs.code.duplicate_entry;
-                return res.status(code.code).json(response.error_response(code.description,userParameter.username))
-            }
-            code = 200;
-            userParameter.insertId = response_callback.insertId;
+            if(!response_callback.accountNumber){
+                   var code = configs.code.authentication_error;
+                   return res.status(code.code).json(response.error_response(code.description,userParameter.username))
+               }
 
-            return res.status(code).json(response.success_response("user details has successfully been fetched",userParameter))
+            if(response_callback.accountNumber){
+                userParameter.accountNumber = response_callback.accountNumber;
+                userParameter.wallet =JSON.stringify(response_callback);
+            mysql.insert_user(userParameter,function(response_callback){
+                console.log(response_callback);
+                    if(!response_callback){
+                        
+                        var code = configs.code.invalid_username;
+                        return res.status(code.code).json(response.error_response(code.description,code.code))
+                    }
+                    if(response_callback.code == "ER_DUP_ENTRY"){
+                        var code = configs.code.duplicate_entry;
+                        return res.status(code.code).json(response.error_response(code.description,userParameter.username))
+                    }
+                    code = 200;
+                    userParameter.insertId = response_callback.insertId;
+                    return res.status(code).json(response.success_response("user details has successfully been fetched",userParameter))
+                }); 
+            }           
         });
+
+
+    
+
     });
 
 
