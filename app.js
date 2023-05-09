@@ -4,12 +4,13 @@ var bodyParser = require('body-parser')
 var http = require('http');
 
 
-var indexRouter = require('./routes/index');
-var userRouter = require('./routes/user');
+var indexRouter = require('./src/controller/index');
+var userRouter = require('./src/controller/user');
+var companyRouter = require('./src/controller/companyController');
 /*
 app.get('/', function(req, res){
    res.send("Hello world!");
-});
+}); 
 */
 
 var jsonParser = bodyParser.json()
@@ -21,5 +22,7 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
 
 app.use('/', indexRouter);
 app.use('/user', userRouter);
+app.use('/company', companyRouter);
+
 
 app.listen(3000);

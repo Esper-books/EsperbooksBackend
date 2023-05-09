@@ -1,42 +1,11 @@
 var config = {};
-
-config.twitter = {};
-config.redis = {};
 config.mysql = {};
-config.web = {};
-config.code ={};
-
-
-config.default_stuff =  ['red','green','blue','apple','yellow','orange','politics'];
-config.twitter.user_name = process.env.TWITTER_USER || 'username';
-config.twitter.password=  process.env.TWITTER_PASSWORD || 'password';
-config.redis.uri = process.env.DUOSTACK_DB_REDIS;
-config.redis.host = 'hostname';
-config.redis.port = 6379;
-config.web.port = process.env.WEB_PORT || 9980;
-
-
-config.code.invalid_username ={};
-config.code.invalid_username.code = 401;
-config.code.invalid_username.description = "invalid credential provided";
-
-config.code.incomplete_parameter ={};
-config.code.incomplete_parameter.code = 402;
-config.code.incomplete_parameter.description = "Incomplete parameter provided";
-
-config.code.duplicate_entry ={};
-config.code.duplicate_entry.code = 403;
-config.code.duplicate_entry.description = "duplicate entry provided";
-
-config.code.authentication_error ={};
-config.code.authentication_error.code = 404;
-config.code.authentication_error.description = "authentication_error while generation jwt token";
-
-config.mysql.host = "54.158.121.204";
-config.mysql.user = "paypay";
+config.mysql.host = "127.0.0.1";
+config.mysql.user = "remsaw";
 config.mysql.password = "password";
-config.mysql.database = "paypay";
+config.mysql.database = "esperbook";
 config.mysql.port = 3306;
+config.mysql.secret = "Secret is important!"
 
 
 
