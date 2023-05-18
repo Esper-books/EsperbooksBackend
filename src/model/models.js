@@ -1,11 +1,18 @@
-var mysql = require('mysql');
-const configs = require('../../config/config');
-
-
-
 const { Sequelize, DataTypes } = require('sequelize');
 
-const sequelize = new Sequelize('mysql://remsaw:password@localhost:3306/esperbook');
+const sequelize =
+ new Sequelize('esperbook', 'Esperbooks_SQLLogin_1', 'b2yr2n4hle', {
+  dialect: 'mssql',
+  host: 'esperbook.mssql.somee.com',
+  dialectOptions: {
+    options: {
+      encrypt: true // If using Azure SQL, set this to true
+    }
+  }
+});
+
+
+
 
 
 
@@ -120,7 +127,10 @@ sequelize.queryInterface.describeTable('users')
 
 
 
+
 sequelize.sync();
+
+
 
 
 module.exports = 

@@ -1,18 +1,28 @@
 var Company = require('../model/models');
-var mysql = require('mysql');
+const sql = require('mssql');
 require('dotenv').config();
 
-var con = mysql.createConnection({
-  host:  process.env.configs_mysql_host,
-  user: process.env.configs_mysql_user,
-  password: process.env.configs_mysql_password,
-  database: process.env.configs_mysql_database
-});
+const config = {
+  server:  process.env.configs_mssql_host,
+  host:  process.env.configs_mssql_host,
+  user: process.env.configs_mssql_user,
+  password: process.env.configs_mssql_password,
+  database: process.env.configs_mssql_database,
+  options: {
+    encrypt: true 
+  }
+};
 
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected!");
-});
+sql.connect(config)
+  .then(() => {
+    console.log('connected!')
+  })
+  .catch((err) => {
+    // Connection failed
+    console.log('Error:', err);
+  });
+
+  const request = new sql.Request();
 
 
 function createCompany(req){
@@ -29,11 +39,17 @@ console.log(companies);
 
 
 function fetchCompany(companyToken,callback){
-    con.query('SELECT phoneNumber,emailAddress,name,state,companyAddress FROM companies where companyToken = ?', companyToken,function (err, result, fields) {
-      if (err) throw err;
-      callback(result[0]);
-    });
-  }
+  const query = 'SELECT phoneNumber,emailAddress,name,state,companyAddress FROM companies where companyToken = ?'
+  request.query(query, companyToken , (err, result) => {
+    if (err) {
+      console.log('Error:', err);
+    } else {
+      console.log('Result:', result.recordset);
+      callback(result.recordset[0]);
+    }
+  });
+
+}
 
 
 
@@ -46,6 +62,7 @@ function fetchCompany(companyToken,callback){
 // });
 
 
+
   
 
   module.exports = 
@@ -53,5 +70,5 @@ function fetchCompany(companyToken,callback){
     fetchCompany , createCompany
    }
 
-
+333
   
