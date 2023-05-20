@@ -12,7 +12,7 @@
     "node-ses": "^0.0.1",
     "nodemailer": "^6.9.1",
     "sequelize": "^6.31.1",
-    "tedious": "^16.0.0"
+    "tedious": "^16.1.0"
   },
   "name": "esperbook",
   "version": "1.0.0",

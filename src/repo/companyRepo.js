@@ -1,28 +1,28 @@
 var Company = require('../model/models');
-const sql = require('mssql');
+//const sql = require('mssql');
 require('dotenv').config();
 
-const config = {
-  server:  process.env.configs_mssql_host,
-  host:  process.env.configs_mssql_host,
-  user: process.env.configs_mssql_user,
-  password: process.env.configs_mssql_password,
-  database: process.env.configs_mssql_database,
-  options: {
-    encrypt: true 
-  }
-};
+// const config = {
+//   server:  process.env.configs_mssql_host,
+//   host:  process.env.configs_mssql_host,
+//   user: process.env.configs_mssql_user,
+//   password: process.env.configs_mssql_password,
+//   database: process.env.configs_mssql_database,
+//   options: {
+//     encrypt: true 
+//   }
+// };
 
-sql.connect(config)
-  .then(() => {
-    console.log('connected!')
-  })
-  .catch((err) => {
-    // Connection failed
-    console.log('Error:', err);
-  });
+// sql.connect(config)
+//   .then(() => {
+//     console.log('connected!')
+//   })
+//   .catch((err) => {
+//     // Connection failed
+//     console.log('Error:', err);
+//   });
 
-  const request = new sql.Request();
+//  const request = new sql.Request();
 
 
 function createCompany(req){

@@ -1,16 +1,24 @@
 const { Sequelize, DataTypes } = require('sequelize');
+require('dotenv').config();
 
 const sequelize =
- new Sequelize('esperbook', 'Esperbooks_SQLLogin_1', 'b2yr2n4hle', {
+ new Sequelize(process.env.DB_DATABASE, process.env.DB_USER, process.env.DB_PASS, {
   dialect: 'mssql',
-  host: 'esperbook.mssql.somee.com',
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
   dialectOptions: {
     options: {
-      encrypt: true // If using Azure SQL, set this to true
-    }
-  }
+      encrypt: false, // If using Azure SQL, set this to true
+    },
+  },
 });
 
+sequelize.authenticate().then((err) => {
+  console.log('Connection Successfull');
+})
+.catch((err)=> {
+  console.log('Unable to connect to database',err)
+});
 
 
 
