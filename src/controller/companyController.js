@@ -10,7 +10,6 @@ router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 router.post('', (req, res) =>  {
 reqBody = req.body ; 
-console.log(reqBody.toString); 
 reqBody.companyToken = generateUniqueToken(); 
 const { error} = companyValidate.companySchema.validate(reqBody);
 if (error) return res.status(400).json(error.details);
