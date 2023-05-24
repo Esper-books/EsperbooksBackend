@@ -38,21 +38,6 @@ console.log(companies);
 });
 }
 
-
-function fetchCompany1(companyToken,callback){
-  const query = 'SELECT phoneNumber,emailAddress,name,state,companyAddress FROM companies where companyToken = ?'
-  request.query(query, companyToken , (err, result) => {
-    if (err) {
-      console.log('Error:', err);
-    } else {
-      console.log('Result:', result.recordset);
-      callback(result.recordset[0]);
-    }
-  });
-
-}
-
-
 async function fetchCompany(companyToken,callback) {
   try {
     await sql.connect(config);
