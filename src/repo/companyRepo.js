@@ -39,7 +39,7 @@ console.log(companies);
 }
 
 
-function fetchCompany(companyToken,callback){
+function fetchCompany1(companyToken,callback){
   const query = 'SELECT phoneNumber,emailAddress,name,state,companyAddress FROM companies where companyToken = ?'
   request.query(query, companyToken , (err, result) => {
     if (err) {
@@ -50,6 +50,23 @@ function fetchCompany(companyToken,callback){
     }
   });
 
+}
+
+
+async function fetchCompany(companyToken,callback) {
+  try {
+    await sql.connect(config);
+    const request = new sql.Request();
+    request.input('param', sql.VarChar, companyToken);
+    const query = 'SELECT phoneNumber,emailAddress,name,state,companyAddress FROM Companies where companyToken = @param';
+    const result = await request.query(query);
+    console.log(result);
+    callback(result.recordset[0]);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    await sql.close();
+  }
 }
 
 

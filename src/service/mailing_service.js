@@ -22,7 +22,7 @@ function sendCreateMailNotification(pres){
         from: process.env.EMAIL_TRANSPORT_FROM, 
         to: pres.emailAddress, 
         subject: process.env.EMAIL_COMPANY_CREATE_SUBJECT, 
-        text: process.env.BASE_URI+EMAIL_COMPANY_SIGNUP_USER_URL+pres.companyToken
+        text: process.env.BASE_URI+process.env.EMAIL_COMPANY_SIGNUP_USER_URL+pres.companyToken
         // html: '<b>baseUrl+token</b>'
     };
 transporter.sendMail(mailOptions, (error, info) => {
