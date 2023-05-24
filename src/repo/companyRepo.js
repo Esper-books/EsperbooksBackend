@@ -45,7 +45,6 @@ async function fetchCompany(companyToken,callback) {
     request.input('param', sql.VarChar, companyToken);
     const query = process.env.QUERY_GET_COMPANY_DETAILS_BY_COMPANY_TOKEN;
     const result = await request.query(query);
-    console.log(result);
     callback(result.recordset[0]);
   } catch (error) {
     console.error(error);
