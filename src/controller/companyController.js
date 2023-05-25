@@ -13,7 +13,6 @@ reqBody = req.body ;
 reqBody.companyToken = generateUniqueToken(); 
 const { error} = companyValidate.companySchema.validate(reqBody);
 if (error) return res.status(400).json(error.details);
-else console.log(reqBody.json+" is valid");
 companyRepository.createCompany(reqBody).then(presp => {
     mailingService.sendCreateMailNotification(presp);
     return res.status(200).json({"responseCode":200,"responseMessage":"Company Created Successfully!"});
@@ -30,7 +29,6 @@ router.get('', (req, res) =>  {
     console.log(data);
     return res.status(200).json({"responseCode":200,"responseBody" : data});
   });
-
 });
 
 
