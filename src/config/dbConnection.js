@@ -7,7 +7,7 @@ class DBService {
     }
 
 
-    async connect(config) {
+async connect(config) {
         try {
           this.pool = await sql.connect(config);
           console.log('Connected to the database');
@@ -31,7 +31,7 @@ class DBService {
         options: {
           encrypt: false 
         }
-      };
+      };    
     
 
 }

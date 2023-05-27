@@ -19,7 +19,8 @@
   "description": "ESPERBOOKS is an application that handles the administrative, human resource, project management and accounting processes for engineering companies that are involved in execution of projects or manufacturing. This application will allow for efficiency, transparency and more accurate tracking of activities and events.",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config src/config/webpack.config.js"
   },
   "repository": {
     "type": "git",
@@ -30,5 +31,10 @@
   "bugs": {
     "url": "https://github.com/Esper-books/EsperbooksBackend.git/issues"
   },
-  "homepage": "https://github.com/Esper-books/EsperbooksBackend.git#readme"
+  "homepage": "https://github.com/Esper-books/EsperbooksBackend.git#readme",
+  "devDependencies": {
+    "webpack": "^5.84.1",
+    "webpack-cli": "^5.1.1"
+  }
+
 }
