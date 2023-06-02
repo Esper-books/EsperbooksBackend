@@ -1,13 +1,15 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+
+
 let transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: process.env.SMTP_HOST,
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-        user: 'pmms.mgt@gmail.com', 
-        pass: 'zuoqhyisecgytixq' 
+        user: process.env.EMAIL_TRANSPORT_USER, 
+        pass: process.env.EMAIL_TRANSPORT_PASS 
     }
 });
 
@@ -17,10 +19,10 @@ let transporter = nodemailer.createTransport({
 function sendCreateMailNotification(pres){
     console.log(pres.emailAddress);
     let mailOptions = {
-        from: '"Esper Book" pmms.mgt@gmail.com', 
+        from: process.env.EMAIL_TRANSPORT_FROM, 
         to: pres.emailAddress, 
-        subject: 'Company Creation Sign up', 
-        text: process.env.BASE_URI+'esperbook/signUp?token='+pres.companyToken
+        subject: process.env.EMAIL_COMPANY_CREATE_SUBJECT, 
+        text: process.env.BASE_URI+process.env.EMAIL_COMPANY_SIGNUP_USER_URL+pres.companyToken
         // html: '<b>baseUrl+token</b>'
     };
 transporter.sendMail(mailOptions, (error, info) => {

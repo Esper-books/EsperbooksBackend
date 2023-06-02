@@ -7,6 +7,6 @@ const userSchema = Joi.object({
     password: Joi.string().required(),
     confirmPassword: Joi.string().required()
 });
-exports.companySchema = companySchema;
+exports.userSchema = userSchema;
   
 

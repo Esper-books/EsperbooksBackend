@@ -1,29 +1,9 @@
-var Company = require('../model/models');
+var Company = require('../model/company');
 const sql = require('mssql');
 require('dotenv').config();
-
-const config = {
-  server:  process.env.configs_mssql_host,
-  host:  process.env.configs_mssql_host,
-  user: process.env.configs_mssql_user,
-  password: process.env.configs_mssql_password,
-  database: process.env.configs_mssql_database,
-  options: {
-    encrypt: true 
-  }
-};
-
-sql.connect(config)
-  .then(() => {
-    console.log('connected!')
-  })
-  .catch((err) => {
-    // Connection failed
-    console.log('Error:', err);
-  });
-
-  const request = new sql.Request();
-
+var dbConnection = require('../config/dbConnection'); 
+dbConnection.connect(dbConnection.config);
+const request = new sql.Request();
 
 function createCompany(req){
 return Company.Company.create(req).then(res=> {
@@ -37,18 +17,18 @@ console.log(companies);
 });
 }
 
-
-function fetchCompany(companyToken,callback){
-  const query = 'SELECT phoneNumber,emailAddress,name,state,companyAddress FROM companies where companyToken = ?'
-  request.query(query, companyToken , (err, result) => {
-    if (err) {
-      console.log('Error:', err);
-    } else {
-      console.log('Result:', result.recordset);
-      callback(result.recordset[0]);
-    }
-  });
-
+async function fetchCompany(companyToken,callback) {
+  try {
+    request.input('param', sql.VarChar, companyToken);
+    const query = process.env.QUERY_GET_COMPANY_DETAILS_BY_COMPANY_TOKEN;
+    const result = await request.query(query);
+    callback(result.recordset[0]);
+  } catch (error) {
+    console.error(error);
+   } 
+   finally {
+     await sql.close();
+   }
 }
 
 

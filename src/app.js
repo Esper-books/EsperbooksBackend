@@ -4,15 +4,15 @@ var bodyParser = require('body-parser')
 var http = require('http');
 
 
-var indexRouter = require('./src/controller/index');
+var indexRouter = require('./controller/index');
 //var userRouter = require('./src/controller/user');
-var companyRouter = require('./src/controller/companyController');
+var companyRouter = require('./controller/companyController');
 
 
 var jsonParser = bodyParser.json()
 // parse application/json
 app.use(bodyParser.json())
-app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
+//app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
 
 
 
