@@ -12,7 +12,7 @@ var companyRouter = require('./src/controller/companyController');
 var jsonParser = bodyParser.json()
 // parse application/json
 app.use(bodyParser.json())
-app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
+//app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
 
 
 
