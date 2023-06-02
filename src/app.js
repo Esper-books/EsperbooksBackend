@@ -4,9 +4,9 @@ var bodyParser = require('body-parser')
 var http = require('http');
 
 
-var indexRouter = require('./src/controller/index');
+var indexRouter = require('./controller/index');
 //var userRouter = require('./src/controller/user');
-var companyRouter = require('./src/controller/companyController');
+var companyRouter = require('./controller/companyController');
 
 
 var jsonParser = bodyParser.json()
