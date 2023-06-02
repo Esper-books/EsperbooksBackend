@@ -2,6 +2,15 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
+  node: {
+    __dirname: false,
+    __filename: false,
+    global: true,
+},
+
+externals: {
+  nodemailer: 'nodemailer',
+},
   mode: 'development',
   entry: './src/app.js',
   output: {
@@ -17,7 +26,19 @@ module.exports = {
        http: false,
        zlib: false,
        "https": false,
-       "constants": false 
+       "constants": false ,
+       "util": false,
+       "path": false,
+       "url": false,
+       "assert": false,
+       "fs": false,
+       "pg-hstore": false,
+       "stream": false,
+       "net": false,
+       "dgram": false,
+       "tls": false,
+       "dns": false,
+       "querystring": false
     }
   },
 
