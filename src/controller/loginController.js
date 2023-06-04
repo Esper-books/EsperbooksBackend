@@ -47,6 +47,6 @@ function encryptPassword(password, salt) {
   return encrypted;
 }
 
-// 
+
 
 module.exports = router;
