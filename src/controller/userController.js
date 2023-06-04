@@ -97,24 +97,4 @@ this.confirmPassword  = confirmPassword;
 this.companyToken  = companyToken  ;
 }
 
-
-const salt = crypto.randomBytes(16);
-
-
-function encryptPassword(password, salt) {
-  const key = crypto.scryptSync(password, salt, 32);
-  const cipher = crypto.createCipheriv('aes-256-cbc', key, salt);
-  let encrypted = cipher.update(password, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return encrypted;
-}
-
-//function decryptPassword(encryptedPassword, salt) {
-  //     const key = crypto.scryptSync(encryptedPassword, salt, 32);
-  //     const decipher = crypto.createDecipheriv('aes-256-cbc', key, salt);
-  //     let decrypted = decipher.update(encryptedPassword, 'hex', 'utf8');
-  //     decrypted += decipher.final('utf8');
-  //     return decrypted;
-  //   }
-
 module.exports = router;
