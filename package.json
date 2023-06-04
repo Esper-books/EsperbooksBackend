@@ -15,14 +15,16 @@
     "joi": "x.x.x",
   
       
+    "mssql": "^9.1.1",
+  
+      
+    "nodemailer": "^6.9.3",
+  
+      
     "sequelize": "x.x.x",
   
       
-    "tedious": "^16.1.0",
-
-    "mssql": "^9.1.1",
-
-    "nodemailer": "^6.9.3"
+    "tedious": "^16.1.0"
   
     },
   

@@ -1,81 +1,71 @@
-//const { Sequelize, DataTypes } = require('sequelize');
-//const { sequelize,Sequelize, defineModel,DataTypes } = require('../config/sequelizeDbConn');
-const { DataTypes,Sequelize } = require('sequelize');
-const sequelize = require('../config/sequelizeDbConn');
+const { DataTypes, Sequelize } = require("sequelize");
+const Table = require("../config/sequelizeDbConn");
 
-
-const User = sequelize.define('User', 
-{
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
-  },
-  firstName: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  lastName: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  dateOfBirth: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  gender: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  phoneNumber: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  country: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  emailAddress: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false
+class UserRepository {
+  userRepository;
+  constructor() {
+    this.tableSync();
   }
-} );
 
-sequelize.sync();
+  async tableSync() {
+    this.userRepository = await new Table("User", {
+      id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      dateOfBirth: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      gender: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      phoneNumber: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      country: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      emailAddress: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      companyToken: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: false
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: false
+      },
+    }).createTable();
+  }
+  catch(error) {
+    console.error("Unable to connect to the database:", error);
+  }
+}
 
-module.exports = User
 
 
-// sequelize.queryInterface.describeTable('users')
-//   .then(tableDefinition => {
-//     if (!tableDefinition['companyToken']) {
-//       // If the column does not exist, add it
-//       return sequelize.queryInterface.addColumn('users', 'companyToken', {
-//         type: DataTypes.STRING,
-//         allowNull: false,
-//         unique: true
-//       });
-//     }
-//   })
-//   .then(() => {
-//     console.log('Column added successfully');
-//   })
-//   .catch(error => {
-//     console.error('Error adding column', error);
-//   });
+module.exports = UserRepository;
 
 
-
-
-// sequelize.sync();
-
-
-
-// module.exports = 
-//   {
-//   User : User
-//  }

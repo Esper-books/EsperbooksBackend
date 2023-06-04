@@ -1,37 +1,38 @@
-const { Sequelize, DataTypes } = require('sequelize');
-require('dotenv').config();
+const { Sequelize, DataTypes } = require("sequelize");
+require("dotenv").config();
 
-sequelize =
-new Sequelize(
-    process.env.DB_DATABASE, 
-    process.env.DB_USER, 
-    process.env.DB_PASS, {
-    dialect: 'mssql',
-     host: process.env.DB_HOST,
-     port: process.env.DB_PORT,
-     dialectOptions: {
-     options: {
-     encrypt: false, 
+sequelize = new Sequelize(
+  process.env.DB_DATABASE,
+  process.env.DB_USER,
+  process.env.DB_PASS,
+  {
+    dialect: "mssql",
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    dialectOptions: {
+      options: {
+        encrypt: false,
+      },
     },
- },
-});
+  }
+);
 
+class Table {
+  constructor(tableName, schema) {
+    this.tableName = tableName;
+    this.schema = schema;
+  }
 
-// Function to define models
-// const defineModel = (name, schema) => {
-//   return sequelize.define(name, schema);
-// };
+  defineModel() {
+    return sequelize.define(this.tableName, this.schema);
+  }
 
+  async createTable() {
+   await this.defineModel().sync({ force: true });
+   //await this.defineModel().sync()
+    console.log(`Table ${this.tableName} created.`);
+    return this.defineModel();
+  }
+}
 
-//sequelize.sync();
-
-// Export the Sequelize instance and defineModel function
-// module.exports = {
-//   sequelize,
-//   defineModel,
-//   Sequelize,
-//   DataTypes
-// };
-
-module.exports = sequelize ; 
-
+module.exports = Table;
