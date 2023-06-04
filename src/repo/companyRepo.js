@@ -1,37 +1,46 @@
-var Company = require('../model/company');
-const sql = require('mssql');
-require('dotenv').config();
-var dbConnection = require('../config/dbConnection'); 
+const sql = require("mssql");
+require("dotenv").config();
+var dbConnection = require("../config/dbConnection");
 dbConnection.connect(dbConnection.config);
-const request = new sql.Request();
+const CompanyRepository = require("../model/company.js");
+companyRepoIns = new CompanyRepository();
 
-function createCompany(req){
-return Company.Company.create(req).then(res=> {
-    return res; 
-});
-}
-   
-function getCompanies(){
-Company.findAll().then(companies => {
-console.log(companies);
-});
-}
 
-async function fetchCompany(companyToken,callback) {
+
+function createCompany(req) {
   try {
-    request.input('param', sql.VarChar, companyToken);
-    const query = process.env.QUERY_GET_COMPANY_DETAILS_BY_COMPANY_TOKEN;
-    const result = await request.query(query);
-    callback(result.recordset[0]);
+  return companyRepoIns.companyRepository.create(req).then((res) => {
+    return res;
+  });
+} catch(error){
+ console.log(error);
+} 
+}
+
+function getCompanies() {
+    companyRepoIns.companyRepository.findAll().then((companies) => {
+    console.log(companies);
+  });
+}
+
+async function fetchCompanyByToken(companyToken, callback) {
+  try {
+    const result = await companyRepoIns.companyRepository.findOne({ where: { companyToken: companyToken } });
+    console.log("result ::"+result);
+    callback(result);
   } catch (error) {
     console.error(error);
-   } 
-   finally {
-     await sql.close();
-   }
+  } 
 }
 
-
+// function findByToken (token){
+//     try {
+//       const company = await companyRepoIns.companyRepository.findOne({ where: { companyToken: token } });
+//       console.log(user);
+//     } catch (error) {
+//       console.error(error);
+//     }
+// }
 
 // Company.update(password, { where: username }).then(result => {
 // console.log(result);
@@ -41,14 +50,7 @@ async function fetchCompany(companyToken,callback) {
 // console.log(result);
 // });
 
-
-
-  
-
-  module.exports = 
-  {
-    fetchCompany , createCompany
-   }
-
-333
-  
+module.exports = {
+    fetchCompanyByToken,
+  createCompany,
+};
