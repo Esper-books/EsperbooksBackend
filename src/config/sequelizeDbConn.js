@@ -28,9 +28,9 @@ class Table {
   }
 
   async createTable() {
-   //await this.defineModel().sync({ force: true });
+   await this.defineModel().sync({ force: true });
    await this.defineModel().sync()
-    console.log(`Table ${this.tableName} created.`);
+   // console.log(`Table ${this.tableName} created.`);
     return this.defineModel();
   }
 }
