@@ -24,7 +24,9 @@
     "sequelize": "x.x.x",
   
       
-    "tedious": "^16.1.0"
+    "tedious": "^16.1.0",
+
+    "bcrypt": "^5.0.1"
   
     },
   
