@@ -1,4 +1,4 @@
-//"use strict";
+
 const Joi = require("joi");
 const companySchema = Joi.object({
     contact: Joi.string().required(),

@@ -8,10 +8,10 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const secretKey = "secret esperbook";
 var mailingService = require("../service/mailing_service");
-var util = require("../utils/util");
 var resetpasswordRepo = require("../repo/resetPasswordTokenRepo");
-const { error } = require("console");
-const { encode } = require("querystring");
+var passwordValidate = require("../validation/passwordResetValidate");
+
+
 
 var reqBody;
 
@@ -119,6 +119,13 @@ router.post("/send/resetpassword/link", (req, res) => {
 router.post("/resetpassword", (req, res) => {
   reqBody = req.body;
   const { token } = req.query;
+
+  const { error } = passwordValidate.confirmPasswordSchema.validate(reqBody);
+  if (error) return res.status(400).json(error.details);
+
+  if (reqBody.newpassword !== reqBody.confirmPassword) return res
+  .status(400)
+  .json({ responseCode: 400, responseMessage: "Password and confirm password are not equal" });
 
   if (isTokenExpired(token)) {
     return res
