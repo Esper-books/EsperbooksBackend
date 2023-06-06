@@ -87,79 +87,63 @@ router.post("/send/resetpassword/link", (req, res) => {
 
   const reqbody = { email: userReq.email, token: token };
 
-  userRepository.fetchUserByEmail(reqbody.email , ((data) => {
-    if (data == null) {
-      return res.status(404).json({
-        responseCode: 404,
-        responseMessage: "User does not exist",
-      });
-    }
-    resetpasswordRepo
-    .createResetPassword(reqbody)
-    .then((presp) => {
-      mailingService.sendResetPasswordNotification(reqbody);
-      return res.status(200).json({
-        responseCode: 200,
-        responseMessage: "Reset link has been sent to email if it exist.",
-      });
+  userRepository
+    .fetchUserByEmail(reqbody.email, (data) => {
+      if (data == null) {
+        return res.status(404).json({
+          responseCode: 404,
+          responseMessage: "User does not exist",
+        });
+      }
+      resetpasswordRepo
+        .createResetPassword(reqbody)
+        .then((presp) => {
+          mailingService.sendResetPasswordNotification(reqbody);
+          return res.status(200).json({
+            responseCode: 200,
+            responseMessage: "Reset link has been sent to email if it exist.",
+          });
+        })
+        .catch((error) => {
+          console.error(error);
+          return res
+            .status(500)
+            .json({ responseCode: 500, responseMessage: "Server Error" });
+        });
     })
     .catch((error) => {
-      console.error(error);
-      return res
-        .status(500)
-        .json({ responseCode: 500, responseMessage: "Server Error" });
+      console.log(error);
     });
-  }
-  )).catch(error => {
-    console.log(error);
-  });
 });
 
 router.post("/resetpassword", (req, res) => {
   reqBody = req.body;
   const { token } = req.query;
 
-  resetpasswordRepo
-    .fetchResetPByToken(token, (presp) => {
-      if (presp == null)
-        if (isTokenExpired(token)) {
-          return res
-            .status(400)
-            .json({ responseCode: 400, responseMessage: "Token has expired" });
-        }
+  if (isTokenExpired(token)) {
+    return res
+      .status(400)
+      .json({ responseCode: 400, responseMessage: "Token has expired" });
+  }
 
-      reqBody.newpassword = encrypt(reqBody.newpassword, secretKey);
-      userRepository
-        .updatePassword({
-          email: presp.email,
-          newpassword: reqBody.newpassword,
-        })
-        .then((data) => {
-          if (data == undefined) {
-            return res.status(500).json({
-              responseCode: 500,
-              responseMessage: "Failed",
-            });
-          }
-          return res.status(200).json({
-            responseCode: 200,
-            responseMessage: "Password Changed Successfully!",
-          });
-        })
-        .catch((error) => {
-          return res.status(500).json({
-            responseCode: 500,
-            responseMessage: "Failed",
-          });
-        });
-    })
-    .catch((error) => {
-      console.log(error);
-      console.error(error);
+  resetpasswordRepo.fetchResetPByToken(token, (presp) => {
+    if (presp == null) {
       return res
-        .status(500)
-        .json({ responseCode: 500, responseMessage: "Server Error" });
+        .status(400)
+        .json({ responseCode: 400, responseMessage: "Invalid Token" });
+    }
+
+    reqBody.newpassword = encrypt(reqBody.newpassword, secretKey);
+    var updres = userRepository.updatePassword({
+      email: presp.email,
+      newpassword: reqBody.newpassword,
     });
+    console.log(`data ===> ${{ updres }}`);
+    return res.status(200).json({
+      responseCode: 200,
+      responseMessage: "Password Changed Successfully!",
+    });
+  });
 });
 
 function requestObject(

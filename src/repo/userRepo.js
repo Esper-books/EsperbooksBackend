@@ -45,10 +45,9 @@ function createUser(req) {
   }
 
 
-  async function  fetchUserByUserPassword(detail, callback) {
+  async function  fetchUserByUserPassword(detail,callback) {
     try {
       const result = await userRepoIns.userRepository.findOne({ where: { password: detail.password , emailAddress : detail.email } });
-      console.log("result ::"+result);
       callback(result);
     } catch (error) {
       console.error(error);
@@ -56,19 +55,19 @@ function createUser(req) {
   }
 
 
-  async function updatePassword(detail,callback) {
+  async function updatePassword(detail) {
     userRepoIns.userRepository.findOne({ where: { emailAddress: detail.email } })
     .then(user => {
       if (user) {
-        user.update({ password: detail.newpassword });
+        return user.update({ password: detail.newpassword });
       } else {
         throw new Error('Record not found');
       }
     })
     .then(updatedUser => {
       // Step 4: Handle the update result
-      const result = updatedUser;
-      callback(result);
+      console.log('Step 4: Handle the update result');
+      return updatedUser ;
     })
     .catch(error => {
       console.error('Error updating record:', error);
