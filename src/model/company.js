@@ -35,7 +35,8 @@ async tableSync() {
       },
       emailAddress: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       companyType: {
         type: DataTypes.TEXT,
