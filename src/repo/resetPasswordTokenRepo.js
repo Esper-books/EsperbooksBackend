@@ -40,6 +40,43 @@ resetPasswordRepoIns = new ResetPasswordRepository();
           console.error('Error updating record:', error);
         });
       }
+
+      async function removeUsedToken(token){
+        resetPasswordRepoIns.resetPasswordRepository.destroy({
+          where: {
+            token: token, // Specify the condition to match the record you want to delete
+          },
+        })
+          .then(deletedCount => {
+            if (deletedCount > 0) {
+              console.log('Token removed');
+            } else {
+              console.log('No token found to remove');
+            }
+          })
+          .catch(error => {
+            console.error('Error removing token:', error);
+          });
+      }
+
+
+      async function removeUsedTokenWithEmail(email){
+        resetPasswordRepoIns.resetPasswordRepository.destroy({
+          where: {
+            email: email, // Specify the condition to match the record you want to delete
+          },
+        })
+          .then(deletedCount => {
+            if (deletedCount > 0) {
+              console.log('Token removed');
+            } else {
+              console.log('No token found to remove');
+            }
+          })
+          .catch(error => {
+            console.error('Error removing token:', error);
+          });
+      }
     
 
 
@@ -47,6 +84,8 @@ resetPasswordRepoIns = new ResetPasswordRepository();
   module.exports = {
     fetchResetPByToken,
     createResetPassword,
-    updatePassword
+    updatePassword,
+    removeUsedToken,
+    removeUsedTokenWithEmail
 };
 
