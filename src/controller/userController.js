@@ -123,7 +123,7 @@ router.post("/resetpassword", (req, res) => {
   const { error } = passwordValidate.confirmPasswordSchema.validate(reqBody);
   if (error) return res.status(400).json(error.details);
 
-  if (reqBody.password !== reqBody.confirmPassword) return res
+  if (reqBody.newpassword !== reqBody.confirmPassword) return res
   .status(400)
   .json({ responseCode: 400, responseMessage: "Password and confirm password are not equal" });
 
