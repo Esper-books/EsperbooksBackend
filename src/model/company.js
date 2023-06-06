@@ -29,8 +29,9 @@ async tableSync() {
         allowNull: false
       },
       phoneNumber: {
-        type: DataTypes.INTEGER,
-        allowNull: false
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
       },
       emailAddress: {
         type: DataTypes.STRING,
@@ -58,7 +59,8 @@ async tableSync() {
       },
       companyToken: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
+        unique: true
       }
     } 
     

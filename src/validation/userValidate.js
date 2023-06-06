@@ -1,10 +1,10 @@
-//"use strict";
+
 const Joi = require("joi");
 const userSchema = Joi.object({
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
     dateOfBirth: Joi.string().required(),
-    gender: Joi.string().required(),
+    gender: Joi.string().valid('MALE', 'FEMALE').required(),
     country: Joi.string().required(),
     emailAddress: Joi.string().required().email().required().messages({
         'string.emailAddress': 'Please enter a valid email address', 

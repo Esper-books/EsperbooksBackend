@@ -128,6 +128,7 @@ router.post("/resetpassword", (req, res) => {
   .json({ responseCode: 400, responseMessage: "Password and confirm password are not equal" });
 
   if (isTokenExpired(token)) {
+    resetpasswordRepo.removeUsedToken(token);
     return res
       .status(400)
       .json({ responseCode: 400, responseMessage: "Token has expired" });
@@ -141,11 +142,13 @@ router.post("/resetpassword", (req, res) => {
     }
 
     reqBody.newpassword = encrypt(reqBody.newpassword, secretKey);
-    var updres = userRepository.updatePassword({
+    userRepository.updatePassword({
       email: presp.email,
       newpassword: reqBody.newpassword,
     });
-    console.log(`data ===> ${{ updres }}`);
+
+    resetpasswordRepo.removeUsedTokenWithEmail(presp.email);
+    
     return res.status(200).json({
       responseCode: 200,
       responseMessage: "Password Changed Successfully!",

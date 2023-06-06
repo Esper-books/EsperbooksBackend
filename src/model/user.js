@@ -31,8 +31,9 @@ class UserRepository {
         allowNull: false,
       },
       phoneNumber: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: true,
+        unique:true
       },
       country: {
         type: DataTypes.STRING,
