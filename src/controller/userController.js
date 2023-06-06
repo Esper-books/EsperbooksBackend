@@ -141,11 +141,11 @@ router.post("/resetpassword", (req, res) => {
     }
 
     reqBody.newpassword = encrypt(reqBody.newpassword, secretKey);
-    var updres = userRepository.updatePassword({
+    userRepository.updatePassword({
       email: presp.email,
       newpassword: reqBody.newpassword,
     });
-    console.log(`data ===> ${{ updres }}`);
+    
     return res.status(200).json({
       responseCode: 200,
       responseMessage: "Password Changed Successfully!",
