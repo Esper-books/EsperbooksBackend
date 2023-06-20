@@ -27,7 +27,6 @@ function createUser(req) {
   async function fetchUserByEmail(emailAddress, callback) {
     try {
       const result = await userRepoIns.userRepository.findOne({ where: { emailAddress: emailAddress } });
-      console.log("result ::"+result);
       callback(result);
     } catch (error) {
       console.error(error);
@@ -37,7 +36,6 @@ function createUser(req) {
   async function fetchUserByPassword(password, callback) {
     try {
       const result = await userRepoIns.userRepository.findOne({ where: { password: password } });
-      console.log("result ::"+result);
       callback(result);
     } catch (error) {
       console.error(error);

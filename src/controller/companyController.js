@@ -5,9 +5,11 @@ var companyRepository = require("../repo/companyRepo");
 var companyValidate = require("../validation/companyValidate");
 var mailingService = require("../service/mailing_service");
 const crypto = require("crypto");
+var sf = require("../service/security");
 var reqBody;
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
+
 router.post("", (req, res) => {
   reqBody = req.body;
   reqBody.companyToken = generateUniqueToken();
@@ -40,7 +42,7 @@ router.post("", (req, res) => {
     });
 });
 
-router.get("", (req, res) => {
+router.get("", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (req, res) => {
   const { companyToken } = req.query;
   companyRepository.fetchCompanyByToken(companyToken, (data) => {
     console.log(data);
