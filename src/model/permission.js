@@ -1,32 +1,31 @@
-const { DataTypes, Sequelize } = require("sequelize");
-const Table = require("../config/sequelizeDbConn");
+const { DataTypes, Sequelize ,Model} = require("sequelize");
+const sequelize = require("../config/sequelizeDbConn");
 
 
-class PermissionRepository {
-  permissionRepository;
-  constructor() {
-    this.tableSync();
-  }
-
-  async tableSync() {
-    this.permissionRepository = await new Table("Permission", {
+class PermissionRepository extends Model {}
+  PermissionRepository.init( 
+    {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
-      name: {
+      permissionName: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
       }
-    }).createTable();
+    },
+    {
+      sequelize,
+      modelName: "Permission",
+    });
 
-  }
-  catch(error) {
-    console.error("Unable to connect to the database:", error);
-  }
-}
+   PermissionRepository.sync({ force: false });
+
+  
+
+
 
 (async () => {
   try {

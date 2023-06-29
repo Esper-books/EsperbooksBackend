@@ -1,14 +1,8 @@
-const { DataTypes, Sequelize } = require("sequelize");
-const Table = require("../config/sequelizeDbConn");
+const { DataTypes, Sequelize , Model } = require("sequelize");
+const sequelize = require("../config/sequelizeDbConn");
 
-class ResetPasswordRepository {
-  resetPasswordRepository;
-  constructor() {
-    this.tableSync();
-  }
-
-  async tableSync() {
-    this.resetPasswordRepository = await new Table("ResetPassword", {
+class ResetPasswordRepository extends Model {}
+  ResetPasswordRepository.init({
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -25,14 +19,14 @@ class ResetPasswordRepository {
         allowNull: false,
         unique: false
       }
-    }).createTable();
-  }
-  catch(error) {
-    console.error("Unable to connect to the database:", error);
-  }
-}
+    },
+    {
+      sequelize,
+      modelName: "ResetPassword",
+    });
 
 
+    ResetPasswordRepository.sync();
 
 module.exports = ResetPasswordRepository;
 

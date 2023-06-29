@@ -1,11 +1,10 @@
 const secretKey = "secret esperbook";
 const jwt = require("jsonwebtoken");
-var userRepository = require("../repo/userRepo");
-var permissionRepository = require("../repo/permissionRepo");
+var permissionRepositoryRef = require("../repo/permissionRepo");
 var roleRepository = require("../repo/roleRepo");
 
-function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
+function authenticateToken(sreq, res, next) {
+    const authHeader = sreq.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
   
     if (token == null) {
@@ -17,54 +16,98 @@ function authenticateToken(req, res, next) {
         return res.sendStatus(403);
       }
   
-      req.user = user;
+      sreq.user = user;
 
       next();
     });
   }
   
 
-  function authorizeRoles(priviledges) {
-    return (req, res, next) => {
+  // async function authorizeRoles(priviledges) {
+  //   return (req, res, next) => {
+  //     var permissions = [];
+  //       roleRepository.fetchRoles(req.user.id , (roleResp) => {
+  //         if (roleResp != null){
+  //            rolesIds = roleResp.forEach((i) =>         
+  //             {
+                 
+  //              permissionRepositoryRef.fetchPermissionsByRoleId(i.roleId , (prrr) =>{
+  //                 prrr.forEach(p =>{
+  //                   permissionRepositoryRef.getPermissionName(p.permissionsId, (r) => {
+  //                     if (r != null) permissions.push(r.permissionName) ; 
+  //                   });
+  //                 }).then(() => {
+  //                   console.log(permissions);
+  //                   if (!permissions.includes(priviledges)) {
+  //                     return res.sendStatus(403);
+  //                   }
+  //                   next();
 
-        roleRepository.fetchRoles(req.user.id , (roleResp) => {
-            var permissions = [];
-          if (roleResp != null){
-             rolesIds = roleResp.forEach((i) =>         
-              {
-                
-                permissionRepository.fetchPermissionsByRoleId(i.roleId)
-                  .forEach(p =>{
-                  permissionRepository.getPermissionName(p.id, (r) => {
-                    if (r != null) permissions.push(r.name) ; 
-                  });
-                });
-              
-              }
-              
-              );
-              if (!permissions.includes(priviledges)) {
-                return res.sendStatus(403);
-              }
-                next();
-         
-          }
-          return res.sendStatus(403);
-          });
+  //                 });
+                 
+  //               })
+  //               ;    
+  //             }
+            
+  //             );
+  //         }
+  //         else return res.sendStatus(403);
+  //         });
+
+  
 
            
          
+  //   };
+  // }
+
+
+  function authorizeRoles(priviledges) {
+    return (sreq, res, next) => {
+      var permissions = [];
+      roleRepository.fetchRoles(sreq.user.id, (roleResp) => {
+        if (roleResp != null) {
+          var rolePromises = roleResp.map((i) => {
+            return new Promise((resolve, reject) => {
+              permissionRepositoryRef.fetchPermissionsByRoleId(i.roleId, (prrr) => {
+                var permissionPromises = prrr.map((p) => {
+                  return new Promise((resolve, reject) => {
+                    permissionRepositoryRef.getPermissionName(p.permissionsId, (r) => {
+                      if (r != null) permissions.push(r.permissionName);
+                      resolve();
+                    });
+                  });
+                });
+  
+                Promise.all(permissionPromises)
+                  .then(() => {
+                    resolve();
+                  })
+                  .catch((err) => {
+                    reject(err);
+                  });
+              });
+            });
+          });
+  
+          Promise.all(rolePromises)
+            .then(() => {
+              console.log(permissions);
+              if (!permissions.includes(priviledges)) {
+                return res.sendStatus(403);
+              }
+              next();
+            })
+            .catch((err) => {
+              return res.sendStatus(403);
+            });
+        } else {
+          return res.sendStatus(403);
+        }
+      });
     };
   }
-
-//   permissionRepository.fetchPermissionsByRoleId(roleResp.id, (permsResp) => {
-//     permissions = permsResp.map(p => p.permissionName);
-//   if (!permissions.includes(priviledges)) {
-//     return res.sendStatus(403);
-//   }
-//   next()
-// }) ; 
-
+  
 
   
   module.exports = {

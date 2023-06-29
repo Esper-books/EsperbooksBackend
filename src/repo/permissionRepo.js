@@ -1,5 +1,5 @@
-PermissionRepository = new require("../model/permission.js");
-RolePermissionRepository = new require("../model/RolePermission");
+PermissionRepository = require("../model/permission.js");
+RolePermissionRepository = require("../model/RolePermission");
 
 
 
@@ -7,7 +7,7 @@ RolePermissionRepository = new require("../model/RolePermission");
 
   async function fetchPermissionsByRoleId(roleId, callback) {
     try {
-      const result = await RolePermissionRepository.rolePermissionRepository.findAll({ where: { roleId: roleId } });
+      const result = await RolePermissionRepository.findAll({ where: { roleId: roleId } });
       callback(result);
     } catch (error) {
       console.error(error);
@@ -17,7 +17,7 @@ RolePermissionRepository = new require("../model/RolePermission");
 
   async function getPermissionName(id, callback) {
     try {
-      const result = await PermissionRepository.permissionRepository.findOne({ where: { id: id } });
+      const result = await PermissionRepository.findOne({ where: { id: id } });
       callback(result);
     } catch (error) {
       console.error(error);

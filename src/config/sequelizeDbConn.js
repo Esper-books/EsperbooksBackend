@@ -1,5 +1,6 @@
-const { Sequelize, DataTypes } = require("sequelize");
+const { Sequelize } = require("sequelize");
 require("dotenv").config();
+
 
 sequelize = new Sequelize(
   process.env.DB_DATABASE,
@@ -17,21 +18,4 @@ sequelize = new Sequelize(
   }
 );
 
-class Table {
-  constructor(tableName, schema) {
-    this.tableName = tableName;
-    this.schema = schema;
-  }
-
-  defineModel() {
-    return sequelize.define(this.tableName, this.schema);
-  }
-
-  async createTable() {
-   await this.defineModel().sync({ force: true });
-   //await this.defineModel().sync()
-    return this.defineModel();
-  }
-}
-
-module.exports = Table;
+module.exports = sequelize;

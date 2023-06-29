@@ -10,6 +10,8 @@ const secretKey = "secret esperbook";
 var mailingService = require("../service/mailing_service");
 var resetpasswordRepo = require("../repo/resetPasswordTokenRepo");
 var passwordValidate = require("../validation/passwordResetValidate");
+var sf = require("../service/security");
+
 
 
 
@@ -48,7 +50,8 @@ router.post("", (req, res) => {
       reqBody.emailAddress,
       reqBody.password,
       reqBody.confirmPassword,
-      presp.companyToken
+      presp.companyToken,
+      presp.id
     );
     userRepository
       .createUser(reqBody2)
@@ -156,6 +159,210 @@ router.post("/resetpassword", (req, res) => {
   });
 });
 
+router.get("/personnel", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+  userRepository.fetchUserById(sreq.user.id, (fubir) =>{
+      if (fubir !=null){
+        userRepository.fetchCompanyEmailsByCompanyId(fubir.companyId, (data) => {
+          console.log(data);
+          return res.status(200).json({ responseCode: 200, responseBody: data });
+        });
+      }
+  }  );
+
+});
+
+
+
+router.get("/personnelDetails", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+  const { email} = sreq.query;
+  userRepository.fetchUserById(sreq.user.id, (fubir) =>{
+      if (fubir !=null){
+        userRepository.fetchUserByCompanyIdEmail({companyId:fubir.companyId , email: email}, (data) => {
+          data.password = null ;
+          data.companyId = null ; 
+          data.companyToken = null ; 
+          data.id = null ; 
+          return res.status(200).json({ responseCode: 200, responseBody: data });
+        });
+      }
+  }  );
+
+});
+
+
+router.get("/personnel/manager", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+  userRepository.fetchUserById(sreq.user.id, (fubir) =>{
+    if (fubir !=null){
+      userRepository.fetchCompanyEmailsByCompanyIdByManagerStatic(fubir.companyId, (data) => {
+        console.log(data);
+        return res.status(200).json({ responseCode: 200, responseBody: data });
+      });
+    }
+}  );
+
+});
+
+router.put("/personnelDetails", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+  const { email} = sreq.query;
+  const {
+    firstName,
+    lastName,
+    dateOfBirth,
+    gender,
+    phoneNumber,
+    country,
+    isManager,
+    isActive,
+    bioDataStatus,
+    hmnEnrollmentStatus,
+    inductionCompletedStatus,
+    gurantorChecksStatus,
+    workStationStatus,
+    licencePermitStatus,
+    workIdCardStatus,
+    softwareAccessStatus,
+    maritalStatus,
+    department,
+    jobTitle,
+    anualLeave,
+    compassionateLeave,
+    paternityLeave,
+    maternityLeave,
+    sickLeave,
+    leaveWithoutPay,
+    backUps
+} = sreq.body;
+  userRepository.fetchUserById(sreq.user.id, (fubir) =>{
+      if (fubir !=null){
+        userRepository.fetchUserByCompanyIdEmail({companyId:fubir.companyId , email: email}, (record) => {
+          console.log('start') ;
+          console.log(record.dataValues);
+          console.log('end') ;
+          record = record.dataValues;
+          if (firstName) {
+            record.firstName = firstName;
+          }
+          
+          if (lastName) {
+            record.lastName = lastName;
+          }
+          
+          if (dateOfBirth) {
+            record.dateOfBirth = dateOfBirth;
+          }
+          
+          if (gender) {
+            record.gender = gender;
+          }
+          
+          if (phoneNumber) {
+            record.phoneNumber = phoneNumber;
+          }
+          
+          if (country) {
+            record.country = country;
+          }
+          
+          
+          if (isManager != null) {
+            record.isManager = isManager;
+          }
+       
+          if (isActive != null) {
+            record.isActive = isActive;
+          }
+          
+          if (bioDataStatus !== undefined && bioDataStatus !== null) {
+            record.bioDataStatus = bioDataStatus;
+          }
+          
+          if (hmnEnrollmentStatus !== undefined && hmnEnrollmentStatus !== null) {
+            record.hmnEnrollmentStatus = hmnEnrollmentStatus;
+          }
+          
+          if (inductionCompletedStatus !== undefined && inductionCompletedStatus !== null) {
+            record.inductionCompletedStatus = inductionCompletedStatus;
+          }
+          
+          if (gurantorChecksStatus !== undefined && gurantorChecksStatus !== null) {
+            record.gurantorChecksStatus = gurantorChecksStatus;
+          }
+          
+          if (workStationStatus !== undefined && workStationStatus !== null) {
+            record.workStationStatus = workStationStatus;
+          }
+          
+          if (licencePermitStatus !== undefined && licencePermitStatus !== null) {
+            record.licencePermitStatus = licencePermitStatus;
+          }
+          
+          if (workIdCardStatus !== undefined && workIdCardStatus !== null) {
+            record.workIdCardStatus = workIdCardStatus;
+          }
+          
+          if (softwareAccessStatus !== undefined && softwareAccessStatus !== null) {
+            record.softwareAccessStatus = softwareAccessStatus;
+          }
+          
+          if (maritalStatus) {
+            record.maritalStatus = maritalStatus;
+          }
+          
+          if (department) {
+            record.department = department;
+          }
+          
+          if (jobTitle) {
+            record.jobTitle = jobTitle;
+          }
+          
+          if (anualLeave) {
+            record.anualLeave = anualLeave;
+          }
+          
+          if (compassionateLeave) {
+            record.compassionateLeave = compassionateLeave;
+          }
+          
+          if (paternityLeave) {
+            record.paternityLeave = paternityLeave;
+          }
+          
+          if (maternityLeave) {
+            record.maternityLeave = maternityLeave;
+          }
+          
+          if (sickLeave) {
+            record.sickLeave = sickLeave;
+          }
+          
+          if (leaveWithoutPay) {
+            record.leaveWithoutPay = leaveWithoutPay;
+          }
+          
+          if (backUps) {
+            record.backUps = backUps;
+          }
+          userRepository.updateUserByAdmin(record,(uubar) =>{
+            if (uubar == null){
+              return res.status(500).json({ responseCode: 200, responseBody: null });
+            }
+            return res.status(200).json({ responseCode: 200, responseBody: {message : 'record updated Successfully'} });
+          
+          }
+            
+            
+            );
+         
+        });
+      }
+  }  );
+
+});
+
+
+
+
 function requestObject(
   firstName,
   lastName,
@@ -166,7 +373,8 @@ function requestObject(
   emailAddress,
   password,
   confirmPassword,
-  companyToken
+  companyToken,
+  companyId
 ) {
   this.firstName = firstName;
   this.lastName = lastName;
@@ -178,6 +386,7 @@ function requestObject(
   this.password = password;
   this.confirmPassword = confirmPassword;
   this.companyToken = companyToken;
+  this.companyId = companyId ; 
 }
 
 function encrypt(text, password) {

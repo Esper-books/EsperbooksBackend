@@ -1,14 +1,8 @@
-const { DataTypes, Sequelize } = require("sequelize");
-const Table = require("../config/sequelizeDbConn");
+const { DataTypes, Sequelize ,Model} = require("sequelize");
+const sequelize = require("../config/sequelizeDbConn");
 
-class RolePermissionRepository {
-  rolePermissionRepository;
-  constructor() {
-    this.tableSync();
-  }
-
-  async tableSync() {
-    this.rolePermissionRepository = await new Table("RolePermission", {
+class RolePermissionRepository extends Model {}
+  RolePermissionRepository.init({
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -34,12 +28,11 @@ class RolePermissionRepository {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-    }).createTable();
-  }
+    },
+    {
+      sequelize,
+      modelName: "RolePermission",
+    });
 
-  catch(error) {
-    console.error("Unable to connect to the database:", error);
-  }
-}
-
+RolePermissionRepository.sync();
 module.exports = RolePermissionRepository;

@@ -1,11 +1,10 @@
+ResetPasswordRepository = require('../model/resetPasswordToken');
 
-const ResetPasswordRepository = require('../model/resetPasswordToken');
 
-resetPasswordRepoIns = new ResetPasswordRepository();
 
   async function fetchResetPByToken(token, callback) {
     try {
-      const result = await resetPasswordRepoIns.resetPasswordRepository.findOne({ where: { token: token } });
+      const result = await ResetPasswordRepository.findOne({ where: { token: token } });
       console.log("result ::"+result);
       callback(result);
     } catch (error) {
@@ -16,7 +15,7 @@ resetPasswordRepoIns = new ResetPasswordRepository();
 
   function createResetPassword(req) {
     try {
-      return resetPasswordRepoIns.resetPasswordRepository.create(req).then((res) => {
+      return ResetPasswordRepository.create(req).then((res) => {
         return res;
       });
     }catch(error){
@@ -28,7 +27,7 @@ resetPasswordRepoIns = new ResetPasswordRepository();
 
 
     async function updatePassword(detail) {
-        resetPasswordRepoIns.resetPasswordRepository.findOne({ order: [['createdAt', 'DESC']],where: { email: detail.email } })
+      ResetPasswordRepository.findOne({ order: [['createdAt', 'DESC']],where: { email: detail.email } })
         .then(user => {
           if (user) {
             return user.update({ password: detail.newpassword });
@@ -42,7 +41,7 @@ resetPasswordRepoIns = new ResetPasswordRepository();
       }
 
       async function removeUsedToken(token){
-        resetPasswordRepoIns.resetPasswordRepository.destroy({
+        ResetPasswordRepository.destroy({
           where: {
             token: token, // Specify the condition to match the record you want to delete
           },
@@ -61,7 +60,7 @@ resetPasswordRepoIns = new ResetPasswordRepository();
 
 
       async function removeUsedTokenWithEmail(email){
-        resetPasswordRepoIns.resetPasswordRepository.destroy({
+        ResetPasswordRepository.destroy({
           where: {
             email: email, // Specify the condition to match the record you want to delete
           },

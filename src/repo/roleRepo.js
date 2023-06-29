@@ -1,15 +1,10 @@
-const RoleRepository = require("../model/role.js");
-roleRepoIns = new RoleRepository();
-const UserRole  = new require("../model/UserRole");
-
-
-
-
+RoleRepository = require("../model/role");
+UserRoleRepository  = require("../model/UserRole");
 
 
   async function fetchRoleNamebyUser(userId, callback) {
     try {
-      const result = await UserRole.userRoleRepository.findOne({ where: { userId: userId } });
+      const result = await UserRoleRepository.findOne({ where: { userId: userId } });
       console.log("result ::"+result);
       callback(result);
     } catch (error) {
@@ -19,7 +14,7 @@ const UserRole  = new require("../model/UserRole");
 
   async function fetchRoles(userId, callback) {
     try {
-      const result = await UserRole.userRoleRepository.findAll({ where: { userId: userId } });
+      const result = await UserRoleRepository.findAll({ where: { userId: userId } });
       console.log("result ::"+result);
       callback(result);
     } catch (error) {
@@ -30,7 +25,7 @@ const UserRole  = new require("../model/UserRole");
 
   function AddRoleToUser(req) {
     try {
-      return UserRole.userRoleRepository.create(req).then((res) => {
+      return UserRoleRepository.create(req).then((res) => {
         return res;
       });
     }catch(error){
@@ -49,11 +44,21 @@ const UserRole  = new require("../model/UserRole");
     }
     }
 
+    async function fetchRoleByRoleName(name, callback) {
+      try {
+        const result = await RoleRepository.findOne({ where: { name: name } });
+        console.log("result ::"+result);
+        callback(result);
+      } catch (error) {
+        console.error(error);
+      } 
+    }
+
 
 
 
   module.exports = {
-    fetchRoleNamebyUser,AddRoleToUser,fetchRoles
+    fetchRoleNamebyUser,AddRoleToUser,fetchRoles,fetchRoleByRoleName
 };
 
 

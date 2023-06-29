@@ -9,6 +9,7 @@ var sf = require("../service/security");
 var reqBody;
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
+var userRepository = require("../repo/userRepo");
 
 router.post("", (req, res) => {
   reqBody = req.body;
@@ -42,12 +43,17 @@ router.post("", (req, res) => {
     });
 });
 
-router.get("", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (req, res) => {
-  const { companyToken } = req.query;
-  companyRepository.fetchCompanyByToken(companyToken, (data) => {
-    console.log(data);
-    return res.status(200).json({ responseCode: 200, responseBody: data });
-  });
+router.get("", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+  userRepository.fetchUserById(sreq.user.id, (fubir) =>{
+      if (fubir !=null){
+        console.log(sreq.user);
+        companyRepository.fetchCompanyByToken(fubir.companyToken, (data) => {
+          console.log(data);
+          return res.status(200).json({ responseCode: 200, responseBody: data });
+        });
+      }
+  }  );
+
 });
 
 function generateUniqueToken() {
