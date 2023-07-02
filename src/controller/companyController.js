@@ -14,11 +14,18 @@ var userRepository = require("../repo/userRepo");
 router.post("", (req, res) => {
   reqBody = req.body;
   reqBody.companyToken = generateUniqueToken();
+
+  const token = jwt.sign({ roleName: 'COMPANY_SUPER_ADMIN' , companyToken : reqBody.companyToken }, secretKey, {
+    expiresIn: "8640h",
+    });
+
+
   const { error } = companyValidate.companySchema.validate(reqBody);
   if (error) return res.status(400).json(error.details);
   companyRepository
     .createCompany(reqBody)
     .then((presp) => {
+      presp.companyToken = token ; 
       mailingService.sendCreateMailNotification(presp);
       return res
         .status(200)
@@ -46,7 +53,6 @@ router.post("", (req, res) => {
 router.get("", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
   userRepository.fetchUserById(sreq.user.id, (fubir) =>{
       if (fubir !=null){
-        console.log(sreq.user);
         companyRepository.fetchCompanyByToken(fubir.companyToken, (data) => {
           console.log(data);
           return res.status(200).json({ responseCode: 200, responseBody: data });

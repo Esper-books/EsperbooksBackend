@@ -20,7 +20,6 @@ function getCompanies() {
 async function fetchCompanyByToken(companyToken, callback) {
   try {
     const result = await CompanyRepository.findOne({ where: { companyToken: companyToken } });
-    console.log("result ::"+result);
     callback(result);
   } catch (error) {
     console.error(error);

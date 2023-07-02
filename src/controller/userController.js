@@ -1,6 +1,5 @@
 var express = require("express");
 var router = express.Router();
-var bodyParser = require("body-parser");
 var userValidate = require("../validation/userValidate");
 var userRepository = require("../repo/userRepo");
 var companyRepository = require("../repo/companyRepo");
@@ -11,16 +10,15 @@ var mailingService = require("../service/mailing_service");
 var resetpasswordRepo = require("../repo/resetPasswordTokenRepo");
 var passwordValidate = require("../validation/passwordResetValidate");
 var sf = require("../service/security");
+var roleRepository = require("../repo/roleRepo");
 
 
 
 
 var reqBody;
 
-router.post("", (req, res) => {
-  reqBody = req.body;
-
-  const { companyToken } = req.query;
+router.post("",sf.processOnboardingUserRole,async (sreq, res) => {
+  reqBody = sreq.body;
   const { error } = userValidate.userSchema.validate(reqBody);
   if (error) return res.status(400).json(error.details);
 
@@ -32,7 +30,7 @@ router.post("", (req, res) => {
   }
 
   reqBody.password = encrypt(reqBody.password, secretKey);
-  companyRepository.fetchCompanyByToken(companyToken, (presp) => {
+  companyRepository.fetchCompanyByToken(sreq.sDetail.companyToken, (presp) => {
     if (presp == null) {
       return res.status(404).json({
         responseCode: 404,
@@ -51,7 +49,8 @@ router.post("", (req, res) => {
       reqBody.password,
       reqBody.confirmPassword,
       presp.companyToken,
-      presp.id
+      presp.id,
+      sreq.sDetail.roleName
     );
     userRepository
       .createUser(reqBody2)
@@ -235,9 +234,6 @@ router.put("/personnelDetails", sf.authenticateToken,sf.authorizeRoles('CAN_GET_
   userRepository.fetchUserById(sreq.user.id, (fubir) =>{
       if (fubir !=null){
         userRepository.fetchUserByCompanyIdEmail({companyId:fubir.companyId , email: email}, (record) => {
-          console.log('start') ;
-          console.log(record.dataValues);
-          console.log('end') ;
           record = record.dataValues;
           if (firstName) {
             record.firstName = firstName;
@@ -267,7 +263,7 @@ router.put("/personnelDetails", sf.authenticateToken,sf.authorizeRoles('CAN_GET_
           if (isManager != null) {
             record.isManager = isManager;
           }
-       
+      
           if (isActive != null) {
             record.isActive = isActive;
           }
@@ -353,7 +349,7 @@ router.put("/personnelDetails", sf.authenticateToken,sf.authorizeRoles('CAN_GET_
             
             
             );
-         
+        
         });
       }
   }  );
@@ -374,7 +370,8 @@ function requestObject(
   password,
   confirmPassword,
   companyToken,
-  companyId
+  companyId,
+  roleName
 ) {
   this.firstName = firstName;
   this.lastName = lastName;
@@ -387,8 +384,35 @@ function requestObject(
   this.confirmPassword = confirmPassword;
   this.companyToken = companyToken;
   this.companyId = companyId ; 
+  this.roleName = roleName ; 
 }
 
+
+
+router.post("/invite", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+var req = sreq.body;
+
+userRepository.fetchUserById(sreq.user.id , (fubir) =>{
+  roleRepository.fetchRoleByRoleName(req.roleName, (frbrnr) =>{
+    if (frbrnr != null){
+    const token = jwt.sign({ roleName : frbrnr.name , companyToken : fubir.companyToken}, secretKey, {
+    expiresIn: "24h", 
+    });
+    const notReq = {companyToken : token , emailAddress : req.email}; 
+    mailingService.sendCreateMailNotification(notReq);
+    return res.status(200).json({ responseCode: 200, responseBody: {message : 'sucess'} });
+    } else return res.status(400).json({ responseCode: 200, responseBody: {message : 'failed'} });
+    }
+    );
+
+
+});
+
+
+
+});
+    
+    
 function encrypt(text, password) {
   const cipher = crypto.createCipher("aes-256-cbc", password);
   let encrypted = cipher.update(text, "utf8", "hex");

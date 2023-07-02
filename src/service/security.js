@@ -107,9 +107,27 @@ function authenticateToken(sreq, res, next) {
       });
     };
   }
+
+  function processOnboardingUserRole(sreq, res, next) {
+    const companyToken = sreq.query.companyToken ;
+
+  
+    if (companyToken == null ) {
+      return res.sendStatus(401);
+    }
+  
+    jwt.verify(companyToken, secretKey, (err, detail) => {
+      if (err) {
+        return res.sendStatus(403);
+      }
+      sreq.sDetail = detail;
+      next();
+  });
+
+}
   
 
   
   module.exports = {
-    authenticateToken,authorizeRoles
+    authenticateToken,authorizeRoles,processOnboardingUserRole
 };

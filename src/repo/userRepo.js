@@ -7,7 +7,7 @@ function createUser(req) {
   try {
     return UserRepository.create(req).then((res) => {
       var userId = res.dataValues.id
-      RoleRepositoryRef.fetchRoleByRoleName('COMPANY_SUPER_ADMIN', (res) => {
+      RoleRepositoryRef.fetchRoleByRoleName(req.roleName, (res) => {
             if (res != null){
               var req = {userId : userId , roleId : res.dataValues.id};
               UserRoleRepositoryRef.AddRoleToUser(req).then((res) => {

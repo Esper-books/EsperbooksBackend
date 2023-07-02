@@ -8,6 +8,7 @@ var indexRouter = require('./controller/index');
 var userRouter = require('./controller/userController');
 var companyRouter = require('./controller/companyController');
 var loginRouter = require('./controller/loginController');
+var roleRouter = require('./controller/roleController');
 
 
 var jsonParser = bodyParser.json()
@@ -21,6 +22,7 @@ app.use('/', indexRouter);
 app.use('/user', userRouter);
 app.use('/company', companyRouter);
 app.use('/login', loginRouter);
+app.use('/role', roleRouter);
 
 
 app.listen(3000);

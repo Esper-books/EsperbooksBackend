@@ -5,7 +5,6 @@ UserRoleRepository  = require("../model/UserRole");
   async function fetchRoleNamebyUser(userId, callback) {
     try {
       const result = await UserRoleRepository.findOne({ where: { userId: userId } });
-      console.log("result ::"+result);
       callback(result);
     } catch (error) {
       console.error(error);
@@ -15,7 +14,6 @@ UserRoleRepository  = require("../model/UserRole");
   async function fetchRoles(userId, callback) {
     try {
       const result = await UserRoleRepository.findAll({ where: { userId: userId } });
-      console.log("result ::"+result);
       callback(result);
     } catch (error) {
       console.error(error);
@@ -47,7 +45,16 @@ UserRoleRepository  = require("../model/UserRole");
     async function fetchRoleByRoleName(name, callback) {
       try {
         const result = await RoleRepository.findOne({ where: { name: name } });
-        console.log("result ::"+result);
+        callback(result);
+      } catch (error) {
+        console.error(error);
+      } 
+    }
+
+
+    async function fetchAllRoles(callback) {
+      try {
+        const result = await RoleRepository.findAll();
         callback(result);
       } catch (error) {
         console.error(error);
@@ -58,7 +65,7 @@ UserRoleRepository  = require("../model/UserRole");
 
 
   module.exports = {
-    fetchRoleNamebyUser,AddRoleToUser,fetchRoles,fetchRoleByRoleName
+    fetchRoleNamebyUser,AddRoleToUser,fetchRoles,fetchRoleByRoleName,fetchAllRoles
 };
 
 
