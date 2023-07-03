@@ -10,12 +10,14 @@ var reqBody;
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 var userRepository = require("../repo/userRepo");
+const jwt = require("jsonwebtoken");
+const secretKey = "secret esperbook";
 
 router.post("", (req, res) => {
   reqBody = req.body;
   reqBody.companyToken = generateUniqueToken();
 
-  const token = jwt.sign({ roleName: 'COMPANY_SUPER_ADMIN' , companyToken : reqBody.companyToken }, secretKey, {
+  const token = jwt.sign({ roleName: 'Super Admin' , companyToken : reqBody.companyToken }, secretKey, {
     expiresIn: "8640h",
     });
 
@@ -50,7 +52,7 @@ router.post("", (req, res) => {
     });
 });
 
-router.get("", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+router.get("", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
   userRepository.fetchUserById(sreq.user.id, (fubir) =>{
       if (fubir !=null){
         companyRepository.fetchCompanyByToken(fubir.companyToken, (data) => {

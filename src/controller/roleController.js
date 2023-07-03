@@ -4,7 +4,7 @@ var roleRepository = require("../repo/roleRepo");
 var sf = require("../service/security");
 
 
-router.get("", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+router.get("", sf.authenticateToken,sf.authorizeRoles('Super Admin'), async (sreq, res) => {
   roleRepository.fetchAllRoles((data) => {
         return res.status(200).json({ responseCode: 200, responseBody: data });
       });

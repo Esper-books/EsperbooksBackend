@@ -13,6 +13,7 @@ UserRoleRepository  = require("../model/UserRole");
 
   async function fetchRoles(userId, callback) {
     try {
+      console.log(userId) ; 
       const result = await UserRoleRepository.findAll({ where: { userId: userId } });
       callback(result);
     } catch (error) {

@@ -1,8 +1,8 @@
-const { Sequelize ,Model } = require("sequelize");
+const { DataTypes, Sequelize ,Model } = require("sequelize");
 const sequelize = require("../config/sequelizeDbConn");
 
 class UserPermissionRepository extends Model {}
-  UserRoleRepository.init({
+UserPermissionRepository.init({
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -40,5 +40,5 @@ class UserPermissionRepository extends Model {}
     });
 
 
-UserRoleRepository.sync();
+    UserPermissionRepository.sync();
 module.exports = UserPermissionRepository;

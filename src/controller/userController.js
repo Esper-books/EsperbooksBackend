@@ -11,6 +11,7 @@ var resetpasswordRepo = require("../repo/resetPasswordTokenRepo");
 var passwordValidate = require("../validation/passwordResetValidate");
 var sf = require("../service/security");
 var roleRepository = require("../repo/roleRepo");
+var UserPermissionRepository = require('../repo/UserPermissionRepo')
 
 
 
@@ -55,7 +56,8 @@ router.post("",sf.processOnboardingUserRole,async (sreq, res) => {
     userRepository
       .createUser(reqBody2)
       .then((presp) => {
-        mailingService.sendCreateMailNotification(presp);
+        UserPermissionRepository.initiatePermissionsForUser(presp.dataValues.id );
+        UserPermissionRepository.processRoleDefaultPrivileges({userId : presp.dataValues.id , roleName : sreq.sDetail.roleName });
         return res.status(200).json({
           responseCode: 200,
           responseMessage: "User Created Successfully!",
@@ -158,7 +160,7 @@ router.post("/resetpassword", (req, res) => {
   });
 });
 
-router.get("/personnel", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+router.get("/personnel", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
   userRepository.fetchUserById(sreq.user.id, (fubir) =>{
       if (fubir !=null){
         userRepository.fetchCompanyEmailsByCompanyId(fubir.companyId, (data) => {
@@ -172,7 +174,7 @@ router.get("/personnel", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY
 
 
 
-router.get("/personnelDetails", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+router.get("/personnelDetails", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
   const { email} = sreq.query;
   userRepository.fetchUserById(sreq.user.id, (fubir) =>{
       if (fubir !=null){
@@ -189,7 +191,7 @@ router.get("/personnelDetails", sf.authenticateToken,sf.authorizeRoles('CAN_GET_
 });
 
 
-router.get("/personnel/manager", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+router.get("/personnel/manager", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
   userRepository.fetchUserById(sreq.user.id, (fubir) =>{
     if (fubir !=null){
       userRepository.fetchCompanyEmailsByCompanyIdByManagerStatic(fubir.companyId, (data) => {
@@ -201,7 +203,7 @@ router.get("/personnel/manager", sf.authenticateToken,sf.authorizeRoles('CAN_GET
 
 });
 
-router.put("/personnelDetails", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+router.put("/personnelDetails", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
   const { email} = sreq.query;
   const {
     firstName,
@@ -389,7 +391,7 @@ function requestObject(
 
 
 
-router.post("/invite", sf.authenticateToken,sf.authorizeRoles('CAN_GET_COMPANY'), async (sreq, res) => {
+router.post("/invite", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
 var req = sreq.body;
 
 userRepository.fetchUserById(sreq.user.id , (fubir) =>{

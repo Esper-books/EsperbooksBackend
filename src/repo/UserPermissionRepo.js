@@ -18,7 +18,7 @@ async function fetchPermissions(userId, callback) {
   }
 
 
-  async function initiatePermissionsForUser(userId, callback) {
+  async function initiatePermissionsForUser(userId) {
 
             try {
 
@@ -33,8 +33,7 @@ async function fetchPermissions(userId, callback) {
                 };
                 records.push(newRecord);
               });
-              const result = await UserPermissionRepository.bulkCreate(records);
-              callback(result);
+             await UserPermissionRepository.bulkCreate(records);
             } catch (error) {
               console.error('Error inserting records into table C:', error);
             }
@@ -43,44 +42,61 @@ async function fetchPermissions(userId, callback) {
 
 
   
-  async function setDefaultPrivileges(req, callback) {
+  async function setDefaultPrivileges(req) {
 
     try {
 
       const permission = await PermissionRepository.findOne({
-        where: { permissionName: req.name }
+        where: { id: req.permissionId }
       }
       );
-      const result = await UserPermissionRepository.update(req,{
-        where: {userId : req.userId , permissionId : permission.id}
-      })
-      callback(result);
+      if (permission !=null){
+        req.status=true
+        await UserPermissionRepository.update(req,{
+            where: {userId : req.userId , permissionId : permission.id}
+          })
+      }
+
     } catch (error) {
       console.error('Error inserting records into table C:', error);
     }
 
 }
 
-async function processRoleDefaultPrivileges(req, callback) {
-
+async function processRoleDefaultPrivileges(req) {
+ 
     try {
         RoleRepositoryRef.fetchRoleByRoleName(req.roleName , (res) =>{
-            PermissionRepositoryRef.fetchPermissionsByRoleId(res.id , (resi) =>{
-                 
-            });
-            
-
+            if(res != null){
+            PermissionRepositoryRef.fetchPermissionsByRoleId(res.dataValues.id , (resi) =>{
+                if (resi != null ){
+                    console.log(resi[0])
+                    setDefaultPrivileges({userId : req.userId , permissionId :  resi[0].dataValues.permissionsId});
+                }
+            });     
+        }
         });
-        
-        setDefaultPrivileges(req)
-      
 
-        
     } catch (error) {
       console.error('Error inserting records into table C:', error);
     }
 
 }
+
+
+// async function processRoleDefaultPrivileges(req) {
+//     try {
+//       await sequelize.transaction(async (transaction) => {
+//         const role = await RoleRepositoryRef.fetchRoleByRoleName(req.roleName);
+//         console.log(role);
+        
+//         const permissions = await PermissionRepositoryRef.fetchPermissionsByRoleId(role.dataValues.id);
+//         await setDefaultPrivileges({ userId: req.userId, permissionId: permissions.dataValues.id }, { transaction });
+//       });
+//     } catch (error) {
+//       console.error('Error inserting records into table C:', error);
+//     }
+//   }
 
 
   
@@ -88,6 +104,6 @@ async function processRoleDefaultPrivileges(req, callback) {
 
 
   module.exports = {
-    fetchPermissions,initiatePermissionsForUser,setDefaultPrivileges
+    fetchPermissions,initiatePermissionsForUser,setDefaultPrivileges,processRoleDefaultPrivileges
 };
 
