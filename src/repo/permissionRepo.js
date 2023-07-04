@@ -24,12 +24,25 @@ RolePermissionRepository = require("../model/RolePermission");
     } 
   }
 
+  async function getPermissionId(permissionName, callback) {
+    try {
+      const result = await PermissionRepository.findOne({    
+         attributes: [
+        [sequelize.literal('id'), 'id'] 
+      ], where: { permissionName: permissionName } });
+      callback(result);
+    } catch (error) {
+      console.error(error);
+    } 
+  }
+
+
 
 
 
   
 
   module.exports = {
-    fetchPermissionsByRoleId,getPermissionName
+    fetchPermissionsByRoleId,getPermissionName,getPermissionId
 };
 

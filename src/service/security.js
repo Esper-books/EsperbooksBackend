@@ -2,6 +2,8 @@ const secretKey = "secret esperbook";
 const jwt = require("jsonwebtoken");
 var permissionRepositoryRef = require("../repo/permissionRepo");
 var roleRepository = require("../repo/roleRepo");
+const UserPermissionRepository = require("../model/UserPermission");
+UserPermissionRepo = require("../repo/UserPermissionRepo"); 
 
 function authenticateToken(sreq, res, next) {
     const authHeader = sreq.headers['authorization'];
@@ -62,48 +64,18 @@ function authenticateToken(sreq, res, next) {
   // }
 
 
-  function authorizeRoles(priviledges) {
+  function authorizeRoles(priviledge) {
     return (sreq, res, next) => {
-      var permissions = [];
-      roleRepository.fetchRoles(sreq.user.id, (roleResp) => {
-        if (roleResp != null) {
-          var rolePromises = roleResp.map((i) => {
-            return new Promise((resolve, reject) => {
-              permissionRepositoryRef.fetchPermissionsByRoleId(i.roleId, (prrr) => {
-                var permissionPromises = prrr.map((p) => {
-                  return new Promise((resolve, reject) => {
-                    permissionRepositoryRef.getPermissionName(p.permissionsId, (r) => {
-                      if (r != null) permissions.push(r.permissionName);
-                      resolve();
-                    });
-                  });
-                });
-  
-                Promise.all(permissionPromises)
-                  .then(() => {
-                    resolve();
-                  })
-                  .catch((err) => {
-                    reject(err);
-                  });
-              });
-            });
+      permissionRepositoryRef.getPermissionId(priviledge, (gPIdr) => {
+        if (gPIdr != null) {
+          UserPermissionRepo.isExistPriviledge({userId: sreq.user.id , permissionId: gPIdr.id} , (isEr) => {
+             if(isEr){
+                next();
+             }
+             else return res.sendStatus(403);
           });
-  
-          Promise.all(rolePromises)
-            .then(() => {
-              console.log(permissions);
-              if (!permissions.includes(priviledges)) {
-                return res.sendStatus(403);
-              }
-              next();
-            })
-            .catch((err) => {
-              return res.sendStatus(403);
-            });
-        } else {
-          return res.sendStatus(403);
-        }
+        } else return res.sendStatus(403);
+
       });
     };
   }
@@ -123,6 +95,71 @@ function authenticateToken(sreq, res, next) {
       sreq.sDetail = detail;
       next();
   });
+
+}
+
+
+// function authorizeRoles(priviledges) {
+//   return (sreq, res, next) => {
+//     var permissions = [];
+//     roleRepository.fetchRoles(sreq.user.id, (roleResp) => {
+//       if (roleResp != null) {
+//         var rolePromises = roleResp.map((i) => {
+//           return new Promise((resolve, reject) => {
+//             permissionRepositoryRef.fetchPermissionsByRoleId(i.roleId, (prrr) => {
+//               var permissionPromises = prrr.map((p) => {
+//                 return new Promise((resolve, reject) => {
+//                   permissionRepositoryRef.getPermissionName(p.permissionsId, (r) => {
+//                     if (r != null) permissions.push(r.permissionName);
+//                     resolve();
+//                   });
+//                 });
+//               });
+
+//               Promise.all(permissionPromises)
+//                 .then(() => {
+//                   resolve();
+//                 })
+//                 .catch((err) => {
+//                   reject(err);
+//                 });
+//             });
+//           });
+//         });
+
+//         Promise.all(rolePromises)
+//           .then(() => {
+//             console.log(permissions);
+//             if (!permissions.includes(priviledges)) {
+//               return res.sendStatus(403);
+//             }
+//             next();
+//           })
+//           .catch((err) => {
+//             return res.sendStatus(403);
+//           });
+//       } else {
+//         return res.sendStatus(403);
+//       }
+//     });
+//   };
+// }
+
+function processOnboardingUserRole(sreq, res, next) {
+  const companyToken = sreq.query.companyToken ;
+
+
+  if (companyToken == null ) {
+    return res.sendStatus(401);
+  }
+
+  jwt.verify(companyToken, secretKey, (err, detail) => {
+    if (err) {
+      return res.sendStatus(403);
+    }
+    sreq.sDetail = detail;
+    next();
+});
 
 }
   

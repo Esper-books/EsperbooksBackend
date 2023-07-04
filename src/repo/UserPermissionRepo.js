@@ -1,3 +1,4 @@
+const { QueryTypes } = require('sequelize');
 const UserPermissionRepository = require("../model/UserPermission");
 const RoleRepository = require("../model/role");
 PermissionRepository = require("../model/permission.js");
@@ -84,6 +85,43 @@ async function processRoleDefaultPrivileges(req) {
 }
 
 
+async function isExistPriviledge (req,callback) {
+    try {
+      const record = await UserPermissionRepository.findOne({
+        where: {
+          userId: req.userId,
+          permissionId: req.permissionId,
+          status: true
+        }
+      });
+      callback(record) ; 
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+
+  async function getUserPermissions(userId,callback) {
+    const query = `
+      SELECT UserPermissions.status, Permissions.permissionName as permissionName
+      FROM UserPermissions
+      INNER JOIN Permissions ON UserPermissions.permissionId = Permissions.id
+      WHERE UserPermissions.userId = :userId
+    `;
+    
+    try {
+      const results = await sequelize.query(query, { type: QueryTypes.SELECT,
+        replacements: { userId }  });
+      callback(results);
+    } catch (error) {
+      console.error('Error executing query:', error);
+    }
+  }
+
+
+
+
+
 // async function processRoleDefaultPrivileges(req) {
 //     try {
 //       await sequelize.transaction(async (transaction) => {
@@ -104,6 +142,6 @@ async function processRoleDefaultPrivileges(req) {
 
 
   module.exports = {
-    fetchPermissions,initiatePermissionsForUser,setDefaultPrivileges,processRoleDefaultPrivileges
+    fetchPermissions,initiatePermissionsForUser,setDefaultPrivileges,processRoleDefaultPrivileges,isExistPriviledge,getUserPermissions
 };
 
