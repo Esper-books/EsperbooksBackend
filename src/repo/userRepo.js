@@ -5,19 +5,7 @@ UserRoleRepositoryRef = require("../repo/userRoleRepo");
 
 function createUser(req) {
   try {
-    return UserRepository.create(req).then((res) => {
-      var userId = res.dataValues.id
-      RoleRepositoryRef.fetchRoleByRoleName(req.roleName, (res) => {
-            if (res != null){
-              var req = {userId : userId , roleId : res.dataValues.id};
-              UserRoleRepositoryRef.AddRoleToUser(req).then((res) => {
-                  console.log(res) ; 
-              });
-            } else {console.log('specified role to be added not available')}
-        }
-      );
-      return res;
-    });
+    return UserRepository.create(req);
   }catch(error){
     if (error.name === 'SequelizeUniqueConstraintError') {
       // Handle the duplicate error
@@ -32,7 +20,8 @@ function createUser(req) {
       .status(500)
       .json({ responseCode: 500, responseMessage: "Server Error" });
   }
-  }
+  } 
+
 
 
   async function fetchUserByEmail(emailAddress, callback) {

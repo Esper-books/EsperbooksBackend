@@ -11,7 +11,7 @@ var resetpasswordRepo = require("../repo/resetPasswordTokenRepo");
 var passwordValidate = require("../validation/passwordResetValidate");
 var sf = require("../service/security");
 var roleRepository = require("../repo/roleRepo");
-var UserPermissionRepository = require('../repo/UserPermissionRepo')
+var UserRolePermissionRepository = require('../repo/UserRolePermissionRepo')
 
 
 
@@ -56,8 +56,8 @@ router.post("",sf.processOnboardingUserRole,async (sreq, res) => {
     userRepository
       .createUser(reqBody2)
       .then((presp) => {
-        UserPermissionRepository.initiatePermissionsForUser(presp.dataValues.id );
-        UserPermissionRepository.processRoleDefaultPrivileges({userId : presp.dataValues.id , roleName : sreq.sDetail.roleName });
+        //UserRolePermissionRepository.initiatePermissionsForUser(presp.dataValues.id );
+        UserRolePermissionRepository.processRoleDefaultPrivileges({userId : presp.id , roleName : sreq.sDetail.roleName });
         return res.status(200).json({
           responseCode: 200,
           responseMessage: "User Created Successfully!",
@@ -160,7 +160,7 @@ router.post("/resetpassword", (req, res) => {
   });
 });
 
-router.get("/personnel", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
+router.get("/personnel",sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'),(sreq, res) => {
   userRepository.fetchUserById(sreq.user.id, (fubir) =>{
       if (fubir !=null){
         userRepository.fetchCompanyEmailsByCompanyId(fubir.companyId, (data) => {
@@ -174,7 +174,7 @@ router.get("/personnel", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox')
 
 
 
-router.get("/personnelDetails", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
+router.get("/personnelDetails",sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
   const { email} = sreq.query;
   userRepository.fetchUserById(sreq.user.id, (fubir) =>{
       if (fubir !=null){
@@ -395,7 +395,7 @@ router.post("/invite", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), 
 var req = sreq.body;
 
 userRepository.fetchUserById(sreq.user.id , (fubir) =>{
-  roleRepository.fetchRoleByRoleName(req.roleName, (frbrnr) =>{
+  roleRepository.fetchRoleByRoleName(req.roleName).then((frbrnr) =>{
     if (frbrnr != null){
     const token = jwt.sign({ roleName : frbrnr.name , companyToken : fubir.companyToken}, secretKey, {
     expiresIn: "24h", 

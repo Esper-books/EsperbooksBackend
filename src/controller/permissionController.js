@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-var UserPermissionRep = require("../repo/UserPermissionRepo");
+//var UserPermissionRep = require("../repo/UserPermissionRepo");
 var UserRepo = require("../repo/userRepo")
 var sf = require("../service/security");
 

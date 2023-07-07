@@ -1,4 +1,4 @@
-UserRoleRepository = require("../model/UserRole.js");
+UserRoleRepository = require("../model/UserRole");
 
 function AddRoleToUser(req) {
     try {
@@ -21,9 +21,52 @@ function AddRoleToUser(req) {
     }
     }
 
+    async function fetchUserRoles(userId, callback) {
+      try {
+        const result = await UserRoleRepository.findAll({ where: { userId: userId } });
+        callback(result);
+      } catch (error) {
+        console.error(error);
+      } 
+    }
+
+    async function fetchUserRolesThen(userId) {
+      try {
+        const result = await UserRoleRepository.findAll({ where: { userId: userId } });
+        return result; 
+      } catch (error) {
+        console.error(error);
+      } 
+    }
+
+
+
+    
+    async function fetchUserRole(req, callback) {
+      try {
+        const result = await UserRoleRepository.findOne({ where: { userId: req.userId , roleId: req.roleId } });
+        callback(result);
+      } catch (error) {
+        console.error(error);
+      } 
+    }
+
+
+    async function fetchUserRoleThen(req) {
+      try {
+        return await UserRoleRepository.findOne({ where: { userId: req.userId , roleId: req.roleId } });
+      } catch (error) {
+        console.error(error);
+      } 
+    }
+
+
+
+  
+
 
 
 
 module.exports = {
-    AddRoleToUser
+    AddRoleToUser,fetchUserRoles,fetchUserRole,fetchUserRolesThen,fetchUserRoleThen
 };

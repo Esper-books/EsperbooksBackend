@@ -43,20 +43,19 @@ UserRoleRepository  = require("../model/UserRole");
     }
     }
 
-    async function fetchRoleByRoleName(name, callback) {
+    async function fetchRoleByRoleName(name) {
       try {
-        const result = await RoleRepository.findOne({ where: { name: name } });
-        callback(result);
+        return RoleRepository.findOne({ where: { name: name } });
+        //callback(result);
       } catch (error) {
         console.error(error);
       } 
     }
 
 
-    async function fetchAllRoles(callback) {
+    async function fetchAllRoles() {
       try {
-        const result = await RoleRepository.findAll();
-        callback(result);
+        return await RoleRepository.findAll();
       } catch (error) {
         console.error(error);
       } 

@@ -56,7 +56,6 @@ router.get("", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (s
   userRepository.fetchUserById(sreq.user.id, (fubir) =>{
       if (fubir !=null){
         companyRepository.fetchCompanyByToken(fubir.companyToken, (data) => {
-          console.log(data);
           return res.status(200).json({ responseCode: 200, responseBody: data });
         });
       }

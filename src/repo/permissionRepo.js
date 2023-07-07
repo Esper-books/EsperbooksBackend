@@ -33,8 +33,36 @@ RolePermissionRepository = require("../model/RolePermission");
       callback(result);
     } catch (error) {
       console.error(error);
+      return null ;
     } 
   }
+
+  async function getPermissionIdThen(permissionName) {
+    try {
+      const result = await PermissionRepository.findOne({    
+         attributes: [
+        [sequelize.literal('id'), 'id'] 
+      ], where: { permissionName: permissionName } });
+      return result; 
+    } catch (error) {
+      console.error(error);
+      return null ;
+    } 
+  }
+
+
+  
+  async function getPermissions() {
+    try {
+      const result = await PermissionRepository.findAll();
+      return result; 
+    } catch (error) {
+      console.error(error);
+      return null ;
+    } 
+  }
+
+
 
 
 
@@ -43,6 +71,6 @@ RolePermissionRepository = require("../model/RolePermission");
   
 
   module.exports = {
-    fetchPermissionsByRoleId,getPermissionName,getPermissionId
+    fetchPermissionsByRoleId,getPermissionName,getPermissionId,getPermissionIdThen,getPermissions
 };
 
