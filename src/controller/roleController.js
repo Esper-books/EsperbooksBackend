@@ -121,25 +121,18 @@ router.post(
       const { email } = sreq.query;
       const { action } = sreq.query;
 
-      if (action != "assignRoles" || action == "unassignRoles") {
-        res
-          .status(400)
-          .json({
-            responseCode: 400,
-            responseBody: "Invalid action value in query param",
-          });
-      }
-
+      if ((action == 'assignRoles') || (action == 'unassignRoles')) {
+    
       const user = await userRepo.fetchUserByEmailPromise(email);
 
       if (user == null)
-        res
+        return res
           .status(404)
           .json({ responseCode: 404, responseBody: "User not found." });
 
-      if (action == "assignRoles") {
+      if (action == 'assignRoles') {
         for (const r of sreq.body.roles) {
-          const role = await roleRepository.fetchRoleByRoleName(r);
+          const role = await roleRepository.fetchRoleByRoleName(r.roleName);
           if (role !=null){
             await roleRepository.updateUserRoles({
               userId: user.id,
@@ -147,9 +140,9 @@ router.post(
             });
           }
         }
-      } else if (action == "unassignRoles") {
+      } else if (action == 'unassignRoles') {
         for (const r of sreq.body.roles) {
-          const role = await roleRepository.fetchRoleByRoleName(r);
+          const role = await roleRepository.fetchRoleByRoleName(r.roleName);
           if (role !=null){
             await roleRepository.deleteUserRoleRecord({
               userId: user.id,
@@ -159,10 +152,18 @@ router.post(
          
         }
       }
-
       return roleRepository.getAssignedRoles(user.id, (data) => {
         return res.status(200).json({ responseCode: 200, responseBody: data });
       });
+    } else {
+      return res
+      .status(400)
+      .json({
+        responseCode: 400,
+        responseBody: "Invalid action value in query param",
+      });
+  
+    }
     } catch (error) {
       // Handle error here
       console.error(error);

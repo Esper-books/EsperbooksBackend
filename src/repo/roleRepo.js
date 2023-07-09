@@ -1,5 +1,6 @@
 RoleRepository = require("../model/role");
 UserRoleRepository  = require("../model/UserRole");
+const { QueryTypes } = require("sequelize");
 
 
   async function fetchRoleNamebyUser(userId, callback) {
@@ -84,26 +85,20 @@ UserRoleRepository  = require("../model/UserRole");
 
     async function updateUserRoles(req) {
       try {
+         const result = await UserRoleRepository.findOne({ where: { userId: req.userId, roleId : req.roleId } });
+        if (!result){
         return UserRoleRepository.create(req).then((res) => {
           return res;
         });
+      } else return null ;
       }catch(error){
-        if (error.name === 'SequelizeUniqueConstraintError') {
-          // Handle the duplicate error
-          const value = error.errors[0].value;
-          if (error) return res.status(400).json(    
-            {responseMessage:`${value} already exist.`});
-          return {};
-        } else {
-          // Handle other errors
-           console.error(error);
-        }
+        console.log(error);
       }
     }
 
     async function deleteUserRoleRecord(req) {
       try {
-        const deletedUserRoleP = await UserRolesPermissionRepository.destroy({
+        const deletedUserRoleP = await UserRoleRepository.destroy({
           where: {
             userId: req.userId,
             roleId: req.roleId

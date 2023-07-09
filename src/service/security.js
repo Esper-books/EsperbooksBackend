@@ -55,6 +55,9 @@ function authorizeRoles(privilege) {
   };
 }
 
+
+
+
 function processOnboardingUserRole(sreq, res, next) {
   const companyToken = sreq.query.companyToken;
 
