@@ -44,11 +44,10 @@ function authorizeRoles(privilege) {
                 }
               } else {
                 res.sendStatus(403);
-              }
+              }          
             }
             
           );
-    
         } else {
           res.sendStatus(403);
         }

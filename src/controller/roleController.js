@@ -5,6 +5,7 @@ var permissionRepo = require("../repo/permissionRepo");
 var sf = require("../service/security");
 var userRolePermissionRepo = require("../repo/UserRolePermissionRepo");
 var userRoleRepo = require("../repo/userRoleRepo");
+var userRepo = require("../repo/userRepo");
 
 router.get(
   "",
@@ -17,70 +18,159 @@ router.get(
   }
 );
 
-
 router.get(
   "/permission",
   sf.authenticateToken,
   sf.authorizeRoles("Admin Toolbox"),
-async (sreq, res) => {
-  try {
-    const response = [];
-    const permissions = await permissionRepo.getPermissions();
+  async (sreq, res) => {
+    try {
+      const { email } = sreq.query;
+      const response = [];
 
-    let npermissions = permissions.map((obj) => ({
-      status: false,
-      permissionName: obj.permissionName,
-    }));
+      const user = await userRepo.fetchUserByEmailPromise(email);
 
-    const roles = await roleRepository.fetchAllRoles();
+      if (user == null)
+        res
+          .status(404)
+          .json({ responseCode: 404, responseBody: "User not found." });
 
-    for (const r of roles) {
-      let newRecord;
+      const permissions = await permissionRepo.getPermissions();
 
-      const userRole = await userRoleRepo.fetchUserRoleThen({ userId: sreq.user.id, roleId: r.id });
+      let npermissions = permissions.map((obj) => ({
+        status: false,
+        permissionName: obj.permissionName,
+      }));
 
-      if (userRole !== null) {
-        const userRolePermissions = await userRolePermissionRepo.getUserRolePermissionsThen(userRole.id);
+      const roles = await roleRepository.fetchAllRoles();
 
-        const newPermissions = [];
+      for (const r of roles) {
+        let newRecord;
 
-        // const combinedArray = npermissions.map(permissionA => {
-        //   const matchingPermissionB = userRolePermissions.find(permissionB => permissionB.permissionName === permissionA.permissionName);
-          
-        //   if (matchingPermissionB) {
-        //     return {
-        //       status: matchingPermissionB.status,
-        //       permissionName: permissionA.permissionName
-        //     };
-        //   } else {
-        //     return permissionA;
-        //   }
-        // });
+        const userRole = await userRoleRepo.fetchUserRoleThen({
+          userId: user.id,
+          roleId: r.id,
+        });
 
-       // npermissions ;
-        newRecord = {
-          role: r.name,
-          permissions: []
-        };
-      } else {
-        newRecord = {
-          role: r.name,
-          permissions: npermissions,
-        };
+        if (userRole !== null) {
+          const userRolePermissions =
+            await userRolePermissionRepo.getUserRolePermissionsThen(
+              userRole.id
+            );
+          if (userRolePermissions != null) {
+            newRecord = {
+              role: r.name,
+              permissions: userRolePermissions,
+            };
+          } else continue;
+        } else {
+          newRecord = {
+            role: r.name,
+            permissions: npermissions,
+          };
+        }
+
+        response.push(newRecord);
       }
 
-      response.push(newRecord);
+      return res
+        .status(200)
+        .json({ responseCode: 200, responseBody: response });
+    } catch (error) {
+      // Handle error here
+      console.error(error);
+      return res
+        .status(500)
+        .json({ responseCode: 500, responseBody: "Internal Server Error" });
     }
-
-    return res.status(200).json({ responseCode: 200, responseBody: response });
-  } catch (error) {
-    // Handle error here
-    console.error(error);
-    return res.status(500).json({ responseCode: 500, responseBody: 'Internal Server Error' });
   }
-}
 );
 
+router.get(
+  "/getAssignedRoles",
+  sf.authenticateToken,
+  sf.authorizeRoles("Admin Toolbox"),
+  async (sreq, res) => {
+    try {
+      const { email } = sreq.query;
 
+      const user = await userRepo.fetchUserByEmailPromise(email);
+
+      if (user == null)
+        res
+          .status(404)
+          .json({ responseCode: 404, responseBody: "User not found." });
+      return roleRepository.getAssignedRoles(user.id, (data) => {
+        return res.status(200).json({ responseCode: 200, responseBody: data });
+      });
+    } catch (error) {
+      // Handle error here
+      console.error(error);
+      return res
+        .status(500)
+        .json({ responseCode: 500, responseBody: "Internal Server Error" });
+    }
+  }
+);
+
+router.post(
+  "/updateUserRoles",
+  sf.authenticateToken,
+  sf.authorizeRoles("Admin Toolbox"),
+  async (sreq, res) => {
+    try {
+      const { email } = sreq.query;
+      const { action } = sreq.query;
+
+      if (action != "assignRoles" || action == "unassignRoles") {
+        res
+          .status(400)
+          .json({
+            responseCode: 400,
+            responseBody: "Invalid action value in query param",
+          });
+      }
+
+      const user = await userRepo.fetchUserByEmailPromise(email);
+
+      if (user == null)
+        res
+          .status(404)
+          .json({ responseCode: 404, responseBody: "User not found." });
+
+      if (action == "assignRoles") {
+        for (const r of sreq.body.roles) {
+          const role = await roleRepository.fetchRoleByRoleName(r);
+          if (role !=null){
+            await roleRepository.updateUserRoles({
+              userId: user.id,
+              roleId: role.id,
+            });
+          }
+        }
+      } else if (action == "unassignRoles") {
+        for (const r of sreq.body.roles) {
+          const role = await roleRepository.fetchRoleByRoleName(r);
+          if (role !=null){
+            await roleRepository.deleteUserRoleRecord({
+              userId: user.id,
+              roleId: role.id,
+            });
+          }
+         
+        }
+      }
+
+      return roleRepository.getAssignedRoles(user.id, (data) => {
+        return res.status(200).json({ responseCode: 200, responseBody: data });
+      });
+    } catch (error) {
+      // Handle error here
+      console.error(error);
+      return res
+        .status(500)
+        .json({ responseCode: 500, responseBody: "Internal Server Error" });
+    }
+  }
+);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-UserRepository = require("../model/user.js");
+UserRepository = require("../model/user");
 RoleRepositoryRef = require("../repo/roleRepo");
 UserRoleRepositoryRef = require("../repo/userRoleRepo");
 
@@ -31,6 +31,10 @@ function createUser(req) {
     } catch (error) {
       console.error(error);
     } 
+  }
+
+  function fetchUserByEmailPromise(email) {
+    return UserRepository.findOne({ where: { emailAddress: email } });
   }
 
   async function fetchUserByPassword(password, callback) {
@@ -168,7 +172,8 @@ function createUser(req) {
     fetchCompanyEmailsByCompanyId,
     fetchUserByCompanyIdEmail,
     updateUserByAdmin,
-    fetchCompanyEmailsByCompanyIdByManagerStatic
+    fetchCompanyEmailsByCompanyIdByManagerStatic,
+    fetchUserByEmailPromise
 };
 
 
