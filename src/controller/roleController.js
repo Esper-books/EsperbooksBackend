@@ -96,10 +96,10 @@ router.get(
       const user = await userRepo.fetchUserByEmailPromise(email);
 
       if (user == null)
-        res
+        return res
           .status(404)
           .json({ responseCode: 404, responseBody: "User not found." });
-      return roleRepository.getAssignedRoles(user.id, (data) => {
+      roleRepository.getAssignedRoles(user.id, (data) => {
         return res.status(200).json({ responseCode: 200, responseBody: data });
       });
     } catch (error) {

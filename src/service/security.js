@@ -23,35 +23,72 @@ function authenticateToken(sreq, res, next) {
   });
 }
 
-function authorizeRoles(privilege) {
-  return (req, res, next) => {
-    permissionRepositoryRef
-      .getPermissionIdThen(privilege)
-      .then((permissionId) => {
-        if (permissionId != null) {
-          UserRoleRepositoryRef.fetchUserRolesThen(req.user.id).then(
-            (userRoles) => {
-              if (userRoles != null) {
-                for (const userRole of userRoles) {
-                  UserRolePermissionRepoRef.isExistPriviledge({
-                    userRoleId: userRole.id,
-                    permissionId: permissionId.id,
-                  }).then((isExist) => {
-                    if (isExist) {
-                      next();
-                    }
-                  });
-                }
-              } else {
-                res.sendStatus(403);
-              }          
-            }
+// function authorizeRoles(privilege) {
+//   return (req, res, next) => {
+//     permissionRepositoryRef
+//       .getPermissionIdThen(privilege)
+//       .then((permissionId) => {
+//         if (permissionId != null) {
+//           UserRoleRepositoryRef.fetchUserRolesThen(req.user.id).then(
+//             (userRoles) => {
+//               if (userRoles != null) {
+//                 for (const userRole of userRoles) {
+//                   UserRolePermissionRepoRef.isExistPriviledge({
+//                     userRoleId: userRole.id,
+//                     permissionId: permissionId.id,
+//                   }).then((isExist) => {
+//                     if (isExist) {
+//                       next();
+//                     }
+//                   });
+//                 }
+//                 //return res.sendStatus(403);
+//               } else {
+//                 return res.sendStatus(403);
+//               }          
+//             }
             
-          );
+//           );
+//         } else {
+//           return res.sendStatus(403);
+//         }
+//       });
+//   };
+// }
+
+
+function authorizeRoles(privilege) {
+  return async (req, res, next) => {
+    try {
+      const permissionId = await permissionRepositoryRef.getPermissionIdThen(privilege);
+      
+      if (permissionId != null) {
+        const userRoles = await UserRoleRepositoryRef.fetchUserRolesThen(req.user.id);
+        
+        if (userRoles != null) {
+          for (const userRole of userRoles) {
+            const isExist = await UserRolePermissionRepoRef.isExistPriviledge({
+              userRoleId: userRole.id,
+              permissionId: permissionId.id,
+            });
+            
+            if (isExist) {
+              next();
+              return; // Exit the loop and the function
+            }
+          }
+          
+          res.sendStatus(403); // No matching user role found
         } else {
-          res.sendStatus(403);
+          res.sendStatus(403); // User roles not found
         }
-      });
+      } else {
+        res.sendStatus(403); // Permission ID not found
+      }
+    } catch (error) {
+      console.error(error);
+      res.sendStatus(500); // Internal server error
+    }
   };
 }
 
