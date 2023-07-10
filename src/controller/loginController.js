@@ -5,6 +5,8 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const secretKey = "secret esperbook";
 var util = require("../utils/util");
+var permissionRepository = require("../repo/permissionRepo");
+var roleRepository = require("../repo/roleRepo");
 
 router.post("", (req, res) => {
   reqBody = req.body;
@@ -16,16 +18,20 @@ router.post("", (req, res) => {
       if (presp.emailAddress !== reqBody.email) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
+
+
+       if (presp.password === reqBody.password) {
+
+            const token = jwt.sign(
+              { id: presp.id},
+              secretKey,
+              { expiresIn: "1h" }
+            );
+            // Send the token to the client
+            return res.status(200).json({ token });
+  
+      
  
-      if (presp.password === reqBody.password) {
-        const token = jwt.sign(
-          { password: reqBody.password, emailAddress: reqBody.emailAddress },
-          secretKey,
-          { expiresIn: "1h" }
-        );
-        // Send the token to the client
-        return res.status(200).json({ token });
-       
       } else {
         return res.status(401).json({ message: "Invalid credentials" });
       }

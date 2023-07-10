@@ -5,17 +5,29 @@ var companyRepository = require("../repo/companyRepo");
 var companyValidate = require("../validation/companyValidate");
 var mailingService = require("../service/mailing_service");
 const crypto = require("crypto");
+var sf = require("../service/security");
 var reqBody;
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
+var userRepository = require("../repo/userRepo");
+const jwt = require("jsonwebtoken");
+const secretKey = "secret esperbook";
+
 router.post("", (req, res) => {
   reqBody = req.body;
   reqBody.companyToken = generateUniqueToken();
+
+  const token = jwt.sign({ roleName: 'Super Admin' , companyToken : reqBody.companyToken }, secretKey, {
+    expiresIn: "8640h",
+    });
+
+
   const { error } = companyValidate.companySchema.validate(reqBody);
   if (error) return res.status(400).json(error.details);
   companyRepository
     .createCompany(reqBody)
     .then((presp) => {
+      presp.companyToken = token ; 
       mailingService.sendCreateMailNotification(presp);
       return res
         .status(200)
@@ -40,12 +52,15 @@ router.post("", (req, res) => {
     });
 });
 
-router.get("", (req, res) => {
-  const { companyToken } = req.query;
-  companyRepository.fetchCompanyByToken(companyToken, (data) => {
-    console.log(data);
-    return res.status(200).json({ responseCode: 200, responseBody: data });
-  });
+router.get("", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
+  userRepository.fetchUserById(sreq.user.id, (fubir) =>{
+      if (fubir !=null){
+        companyRepository.fetchCompanyByToken(fubir.companyToken, (data) => {
+          return res.status(200).json({ responseCode: 200, responseBody: data });
+        });
+      }
+  }  );
+
 });
 
 function generateUniqueToken() {

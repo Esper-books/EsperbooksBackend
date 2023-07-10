@@ -1,6 +1,5 @@
 var express = require("express");
 var router = express.Router();
-var bodyParser = require("body-parser");
 var userValidate = require("../validation/userValidate");
 var userRepository = require("../repo/userRepo");
 var companyRepository = require("../repo/companyRepo");
@@ -10,15 +9,17 @@ const secretKey = "secret esperbook";
 var mailingService = require("../service/mailing_service");
 var resetpasswordRepo = require("../repo/resetPasswordTokenRepo");
 var passwordValidate = require("../validation/passwordResetValidate");
+var sf = require("../service/security");
+var roleRepository = require("../repo/roleRepo");
+var UserRolePermissionRepository = require('../repo/UserRolePermissionRepo')
+
 
 
 
 var reqBody;
 
-router.post("", (req, res) => {
-  reqBody = req.body;
-
-  const { companyToken } = req.query;
+router.post("",sf.processOnboardingUserRole,async (sreq, res) => {
+  reqBody = sreq.body;
   const { error } = userValidate.userSchema.validate(reqBody);
   if (error) return res.status(400).json(error.details);
 
@@ -30,7 +31,7 @@ router.post("", (req, res) => {
   }
 
   reqBody.password = encrypt(reqBody.password, secretKey);
-  companyRepository.fetchCompanyByToken(companyToken, (presp) => {
+  companyRepository.fetchCompanyByToken(sreq.sDetail.companyToken, (presp) => {
     if (presp == null) {
       return res.status(404).json({
         responseCode: 404,
@@ -48,12 +49,15 @@ router.post("", (req, res) => {
       reqBody.emailAddress,
       reqBody.password,
       reqBody.confirmPassword,
-      presp.companyToken
+      presp.companyToken,
+      presp.id,
+      sreq.sDetail.roleName
     );
     userRepository
       .createUser(reqBody2)
       .then((presp) => {
-        mailingService.sendCreateMailNotification(presp);
+        //UserRolePermissionRepository.initiatePermissionsForUser(presp.dataValues.id );
+        UserRolePermissionRepository.processRoleDefaultPrivileges({userId : presp.id , roleName : sreq.sDetail.roleName });
         return res.status(200).json({
           responseCode: 200,
           responseMessage: "User Created Successfully!",
@@ -156,6 +160,207 @@ router.post("/resetpassword", (req, res) => {
   });
 });
 
+router.get("/personnel",sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'),(sreq, res) => {
+  userRepository.fetchUserById(sreq.user.id, (fubir) =>{
+      if (fubir !=null){
+        userRepository.fetchCompanyEmailsByCompanyId(fubir.companyId, (data) => {
+          console.log(data);
+          return res.status(200).json({ responseCode: 200, responseBody: data });
+        });
+      }
+  }  );
+
+});
+
+
+
+router.get("/personnelDetails",sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
+  const { email} = sreq.query;
+  userRepository.fetchUserById(sreq.user.id, (fubir) =>{
+      if (fubir !=null){
+        userRepository.fetchUserByCompanyIdEmail({companyId:fubir.companyId , email: email}, (data) => {
+          data.password = null ;
+          data.companyId = null ; 
+          data.companyToken = null ; 
+          data.id = null ; 
+          return res.status(200).json({ responseCode: 200, responseBody: data });
+        });
+      }
+  }  );
+
+});
+
+
+router.get("/personnel/manager", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
+  userRepository.fetchUserById(sreq.user.id, (fubir) =>{
+    if (fubir !=null){
+      userRepository.fetchCompanyEmailsByCompanyIdByManagerStatic(fubir.companyId, (data) => {
+        console.log(data);
+        return res.status(200).json({ responseCode: 200, responseBody: data });
+      });
+    }
+}  );
+
+});
+
+router.put("/personnelDetails", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
+  const { email} = sreq.query;
+  const {
+    firstName,
+    lastName,
+    dateOfBirth,
+    gender,
+    phoneNumber,
+    country,
+    isManager,
+    isActive,
+    bioDataStatus,
+    hmnEnrollmentStatus,
+    inductionCompletedStatus,
+    gurantorChecksStatus,
+    workStationStatus,
+    licencePermitStatus,
+    workIdCardStatus,
+    softwareAccessStatus,
+    maritalStatus,
+    department,
+    jobTitle,
+    anualLeave,
+    compassionateLeave,
+    paternityLeave,
+    maternityLeave,
+    sickLeave,
+    leaveWithoutPay,
+    backUps
+} = sreq.body;
+  userRepository.fetchUserById(sreq.user.id, (fubir) =>{
+      if (fubir !=null){
+        userRepository.fetchUserByCompanyIdEmail({companyId:fubir.companyId , email: email}, (record) => {
+          record = record.dataValues;
+          if (firstName) {
+            record.firstName = firstName;
+          }
+          
+          if (lastName) {
+            record.lastName = lastName;
+          }
+          
+          if (dateOfBirth) {
+            record.dateOfBirth = dateOfBirth;
+          }
+          
+          if (gender) {
+            record.gender = gender;
+          }
+          
+          if (phoneNumber) {
+            record.phoneNumber = phoneNumber;
+          }
+          
+          if (country) {
+            record.country = country;
+          }
+          
+          
+          if (isManager != null) {
+            record.isManager = isManager;
+          }
+      
+          if (isActive != null) {
+            record.isActive = isActive;
+          }
+          
+          if (bioDataStatus !== undefined && bioDataStatus !== null) {
+            record.bioDataStatus = bioDataStatus;
+          }
+          
+          if (hmnEnrollmentStatus !== undefined && hmnEnrollmentStatus !== null) {
+            record.hmnEnrollmentStatus = hmnEnrollmentStatus;
+          }
+          
+          if (inductionCompletedStatus !== undefined && inductionCompletedStatus !== null) {
+            record.inductionCompletedStatus = inductionCompletedStatus;
+          }
+          
+          if (gurantorChecksStatus !== undefined && gurantorChecksStatus !== null) {
+            record.gurantorChecksStatus = gurantorChecksStatus;
+          }
+          
+          if (workStationStatus !== undefined && workStationStatus !== null) {
+            record.workStationStatus = workStationStatus;
+          }
+          
+          if (licencePermitStatus !== undefined && licencePermitStatus !== null) {
+            record.licencePermitStatus = licencePermitStatus;
+          }
+          
+          if (workIdCardStatus !== undefined && workIdCardStatus !== null) {
+            record.workIdCardStatus = workIdCardStatus;
+          }
+          
+          if (softwareAccessStatus !== undefined && softwareAccessStatus !== null) {
+            record.softwareAccessStatus = softwareAccessStatus;
+          }
+          
+          if (maritalStatus) {
+            record.maritalStatus = maritalStatus;
+          }
+          
+          if (department) {
+            record.department = department;
+          }
+          
+          if (jobTitle) {
+            record.jobTitle = jobTitle;
+          }
+          
+          if (anualLeave) {
+            record.anualLeave = anualLeave;
+          }
+          
+          if (compassionateLeave) {
+            record.compassionateLeave = compassionateLeave;
+          }
+          
+          if (paternityLeave) {
+            record.paternityLeave = paternityLeave;
+          }
+          
+          if (maternityLeave) {
+            record.maternityLeave = maternityLeave;
+          }
+          
+          if (sickLeave) {
+            record.sickLeave = sickLeave;
+          }
+          
+          if (leaveWithoutPay) {
+            record.leaveWithoutPay = leaveWithoutPay;
+          }
+          
+          if (backUps) {
+            record.backUps = backUps;
+          }
+          userRepository.updateUserByAdmin(record,(uubar) =>{
+            if (uubar == null){
+              return res.status(500).json({ responseCode: 200, responseBody: null });
+            }
+            return res.status(200).json({ responseCode: 200, responseBody: {message : 'record updated Successfully'} });
+          
+          }
+            
+            
+            );
+        
+        });
+      }
+  }  );
+
+});
+
+
+
+
 function requestObject(
   firstName,
   lastName,
@@ -166,7 +371,9 @@ function requestObject(
   emailAddress,
   password,
   confirmPassword,
-  companyToken
+  companyToken,
+  companyId,
+  roleName
 ) {
   this.firstName = firstName;
   this.lastName = lastName;
@@ -178,8 +385,36 @@ function requestObject(
   this.password = password;
   this.confirmPassword = confirmPassword;
   this.companyToken = companyToken;
+  this.companyId = companyId ; 
+  this.roleName = roleName ; 
 }
 
+
+
+router.post("/invite", sf.authenticateToken,sf.authorizeRoles('Admin Toolbox'), async (sreq, res) => {
+var req = sreq.body;
+
+userRepository.fetchUserById(sreq.user.id , (fubir) =>{
+  roleRepository.fetchRoleByRoleName(req.roleName).then((frbrnr) =>{
+    if (frbrnr != null){
+    const token = jwt.sign({ roleName : frbrnr.name , companyToken : fubir.companyToken}, secretKey, {
+    expiresIn: "24h", 
+    });
+    const notReq = {companyToken : token , emailAddress : req.email}; 
+    mailingService.sendCreateMailNotification(notReq);
+    return res.status(200).json({ responseCode: 200, responseBody: {message : 'sucess'} });
+    } else return res.status(400).json({ responseCode: 200, responseBody: {message : 'failed'} });
+    }
+    );
+
+
+});
+
+
+
+});
+    
+    
 function encrypt(text, password) {
   const cipher = crypto.createCipher("aes-256-cbc", password);
   let encrypted = cipher.update(text, "utf8", "hex");
